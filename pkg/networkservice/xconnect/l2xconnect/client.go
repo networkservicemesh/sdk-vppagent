@@ -29,7 +29,7 @@ import (
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservicemesh/vppagent"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
 type l2XconnectClient struct{}

@@ -21,8 +21,8 @@ import (
 
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservicemesh/mechanisms/kernel/kerneltap"
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservicemesh/mechanisms/kernel/kernelvethpair"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel/kerneltap"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel/kernelvethpair"
 )
 
 const (

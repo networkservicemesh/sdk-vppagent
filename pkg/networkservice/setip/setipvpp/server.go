@@ -14,8 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package setipkernel provides networkservice chain elements that support setting ip addresses on kernel interfaces
-package setipkernel
+package setipvpp
 
 import (
 	"context"
@@ -26,16 +25,15 @@ import (
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/kernel"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservicemesh/vppagent"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 	"github.com/networkservicemesh/sdk/pkg/networkservicemesh/core/next"
 )
 
-type setIPKernelServer struct{}
+type setVppIPServer struct{}
 
-// NewServer provides a NetworkServiceServer that sets the IP on a kernel interface
-// It sets the IP Address on the *kernel* side of an interface plugged into the
-// Endpoint.  Generally only used by privileged Endpoints like those implementing
-// the Cross Connect Network Service for K8s (formerly known as NSM Forwarder).
+// NewServer creates a NetworkServiceServer chain element to set the ip address on a vpp interface
+// It sets the IP Address on the *vpp* side of an interface plugged into the
+// Endpoint.
 //                                         Endpoint
 //                              +---------------------------+
 //                              |                           |
@@ -45,8 +43,8 @@ type setIPKernelServer struct{}
 //                              |                           |
 //                              |                           |
 //                              |                           |
-//          +-------------------+                           |
-//  setipkernel.NewServer()     |                           |
+//          +-------------------+ setipvpp.NewServer()      |
+//                              |                           |
 //                              |                           |
 //                              |                           |
 //                              |                           |
@@ -56,26 +54,26 @@ type setIPKernelServer struct{}
 //                              +---------------------------+
 //
 func NewServer() networkservice.NetworkServiceServer {
-	return &setIPKernelServer{}
+	return &setVppIPServer{}
 }
 
-func (s *setIPKernelServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (s *setVppIPServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
 	conf := vppagent.Config(ctx)
 	conn, err := next.Client(ctx).Request(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil {
-		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
-		conf.GetLinuxConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetDstIpAddr()}
+		index := len(conf.GetVppConfig().GetInterfaces()) - 1
+		conf.GetVppConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetDstIpAddr()}
 	}
 	return conn, nil
 }
 
-func (s *setIPKernelServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (s *setVppIPServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
 	conf := vppagent.Config(ctx)
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
-		conf.GetLinuxConfig().GetInterfaces()[len(conf.GetLinuxConfig().GetInterfaces())-1].IpAddresses = []string{conn.GetContext().GetIpContext().GetDstIpAddr()}
+		conf.GetVppConfig().GetInterfaces()[len(conf.GetVppConfig().GetInterfaces())-1].IpAddresses = []string{conn.GetContext().GetIpContext().GetDstIpAddr()}
 	}
 	return next.Client(ctx).Close(ctx, conn)
 }

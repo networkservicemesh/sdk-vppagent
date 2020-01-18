@@ -14,26 +14,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package setipvpp
+package setipkernel
 
 import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/kernel"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservicemesh/vppagent"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 	"github.com/networkservicemesh/sdk/pkg/networkservicemesh/core/next"
 )
 
-type setVppIPServer struct{}
+type setIPKernelClient struct{}
 
-// NewServer creates a NetworkServiceServer chain element to set the ip address on a vpp interface
-// It sets the IP Address on the *vpp* side of an interface plugged into the
-// Endpoint.
+// NewClient provides a NetworkServiceClient that sets the IP on a kernel interface
+// It sets the IP Address on the *kernel* side of an interface leaving the
+// Endpoint.  Generally only used by privileged Endpoints like those implementing
+// the Cross Connect Network Service for K8s (formerly known as NSM Forwarder).
 //                                         Endpoint
 //                              +---------------------------+
 //                              |                           |
@@ -43,8 +45,8 @@ type setVppIPServer struct{}
 //                              |                           |
 //                              |                           |
 //                              |                           |
-//          +-------------------+ setipvpp.NewServer()      |
-//                              |                           |
+//                              |                           +-------------------+
+//                              |                           |          setipkernel.NewClient()
 //                              |                           |
 //                              |                           |
 //                              |                           |
@@ -53,27 +55,27 @@ type setVppIPServer struct{}
 //                              |                           |
 //                              +---------------------------+
 //
-func NewServer() networkservice.NetworkServiceServer {
-	return &setVppIPServer{}
+func NewClient() networkservice.NetworkServiceClient {
+	return &setIPKernelClient{}
 }
 
-func (s *setVppIPServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (s *setIPKernelClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*connection.Connection, error) {
 	conf := vppagent.Config(ctx)
-	conn, err := next.Client(ctx).Request(ctx, request)
+	conn, err := next.Client(ctx).Request(ctx, request, opts...)
 	if err != nil {
 		return nil, err
 	}
 	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil {
-		index := len(conf.GetVppConfig().GetInterfaces()) - 1
-		conf.GetVppConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetDstIpAddr()}
+		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
+		conf.GetLinuxConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
 	}
 	return conn, nil
 }
 
-func (s *setVppIPServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (s *setIPKernelClient) Close(ctx context.Context, conn *connection.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
 	conf := vppagent.Config(ctx)
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
-		conf.GetVppConfig().GetInterfaces()[len(conf.GetVppConfig().GetInterfaces())-1].IpAddresses = []string{conn.GetContext().GetIpContext().GetDstIpAddr()}
+		conf.GetLinuxConfig().GetInterfaces()[len(conf.GetLinuxConfig().GetInterfaces())-1].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
 	}
-	return next.Client(ctx).Close(ctx, conn)
+	return next.Client(ctx).Close(ctx, conn, opts...)
 }

@@ -31,7 +31,7 @@ import (
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/common"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/kernel"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservicemesh/vppagent"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/netnsinode"
 )
 

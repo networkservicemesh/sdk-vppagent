@@ -31,7 +31,7 @@ import (
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/vxlan"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservicemesh/vppagent"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
 type vxlanClient struct{}
