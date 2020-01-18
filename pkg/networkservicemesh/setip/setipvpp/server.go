@@ -32,6 +32,27 @@ import (
 type setVppIPServer struct{}
 
 // NewServer creates a NetworkServiceServer chain element to set the ip address on a vpp interface
+// It sets the IP Address on the *vpp* side of an interface plugged into the
+// Endpoint.
+//                                         Endpoint
+//                              +---------------------------+
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//          +-------------------+ setipvpp.NewServer()      |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              +---------------------------+
+//
 func NewServer() networkservice.NetworkServiceServer {
 	return &setVppIPServer{}
 }

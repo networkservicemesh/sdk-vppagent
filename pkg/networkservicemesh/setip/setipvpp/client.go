@@ -35,6 +35,27 @@ import (
 type setVppIPClient struct{}
 
 // NewClient creates a NetworkServiceClient chain element to set the ip address on a vpp interface
+// It sets the IP Address on the *vpp* side of an interface leaving the
+// Endpoint.
+//                                         Endpoint
+//                              +---------------------------+
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |       setipvpp.NewClient()+-------------------+
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              |                           |
+//                              +---------------------------+
+//
 func NewClient() networkservice.NetworkServiceClient {
 	return &setVppIPClient{}
 }
