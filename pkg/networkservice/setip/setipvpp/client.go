@@ -24,7 +24,6 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection"
-	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/kernel"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
@@ -66,17 +65,14 @@ func (s *setVppIPClient) Request(ctx context.Context, request *networkservice.Ne
 	if err != nil {
 		return nil, err
 	}
-	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil {
-		index := len(conf.GetVppConfig().GetInterfaces()) - 1
-		conf.GetVppConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
-	}
+	index := len(conf.GetVppConfig().GetInterfaces()) - 1
+	conf.GetVppConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
 	return conn, nil
 }
 
 func (s *setVppIPClient) Close(ctx context.Context, conn *connection.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
 	conf := vppagent.Config(ctx)
-	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
-		conf.GetVppConfig().GetInterfaces()[len(conf.GetVppConfig().GetInterfaces())-1].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
-	}
+	index := len(conf.GetVppConfig().GetInterfaces()) - 1
+	conf.GetVppConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
 	return next.Client(ctx).Close(ctx, conn, opts...)
 }
