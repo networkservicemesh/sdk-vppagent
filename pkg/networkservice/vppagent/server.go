@@ -24,7 +24,7 @@ import (
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
 
-	"github.com/networkservicemesh/sdk/pkg/networkservicemesh/core/next"
+	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 )
 
 type configServer struct{}

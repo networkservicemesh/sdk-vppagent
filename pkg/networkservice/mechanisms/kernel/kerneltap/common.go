@@ -20,7 +20,7 @@ package kerneltap
 import (
 	"context"
 
-	"github.com/networkservicemesh/sdk/pkg/networkservicemesh/core/trace"
+	"github.com/networkservicemesh/sdk/pkg/networkservice/core/trace"
 
 	"github.com/ligato/vpp-agent/api/models/linux"
 	linuxinterfaces "github.com/ligato/vpp-agent/api/models/linux/interfaces"

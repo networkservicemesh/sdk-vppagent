@@ -25,7 +25,7 @@ import (
 	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
 	"google.golang.org/grpc"
 
-	"github.com/networkservicemesh/sdk/pkg/networkservicemesh/core/next"
+	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/vxlan"

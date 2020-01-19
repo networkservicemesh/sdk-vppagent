@@ -19,7 +19,7 @@ package vppagent
 import (
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
 
-	"github.com/networkservicemesh/sdk/pkg/networkservicemesh/core/adapters"
+	"github.com/networkservicemesh/sdk/pkg/networkservice/core/adapters"
 )
 
 // NewClient - inserts a vppagent *configurator.Config into the GRPC call context.Context

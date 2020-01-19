@@ -24,7 +24,7 @@ import (
 	l2 "github.com/ligato/vpp-agent/api/models/vpp/l2"
 	"google.golang.org/grpc"
 
-	"github.com/networkservicemesh/sdk/pkg/networkservicemesh/core/next"
+	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"

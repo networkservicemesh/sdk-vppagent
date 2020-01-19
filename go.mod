@@ -18,6 +18,8 @@ require (
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 )
 
-replace github.com/networkservicemesh/networkservicemesh/controlplane/api => github.com/networkservicemesh/networkservicemesh/controlplane/api v0.0.0-20200116214944-fa2a5cf363dd
+replace github.com/networkservicemesh/networkservicemesh/controlplane/api => github.com/networkservicemesh/networkservicemesh/controlplane/api v0.0.0-20200119012001-2963e9620442
 
 replace github.com/satori/go.uuid => github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
+
+replace github.com/networkservicemesh/sdk => github.com/networkservicemesh/sdk v0.0.0-20200118165330-b696088b9d3b

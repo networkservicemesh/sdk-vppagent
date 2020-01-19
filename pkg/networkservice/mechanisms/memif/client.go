@@ -34,7 +34,7 @@ import (
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 
-	"github.com/networkservicemesh/sdk/pkg/networkservicemesh/core/next"
+	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 )
 
 type memifClient struct {

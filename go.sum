@@ -39,10 +39,10 @@ github.com/ligato/cn-infra v2.2.0+incompatible h1:VUWtnh+hUnZWAeEleKVdVROQ1GE8/r
 github.com/ligato/cn-infra v2.2.0+incompatible/go.mod h1:wBXHMbKAlgOc/MkJMy/25284ri77duvS0XlIImme7z0=
 github.com/ligato/vpp-agent v2.5.1+incompatible h1:aEfeOBXpLj/Xsu4v1tzmCWchqLpXtFOCZLihV5jwygc=
 github.com/ligato/vpp-agent v2.5.1+incompatible/go.mod h1:o9dJIGC/vLOSSajSGHZ6V0rvwodNMftGDB5FqfjGK6w=
-github.com/networkservicemesh/networkservicemesh/controlplane/api v0.0.0-20200116214944-fa2a5cf363dd h1:L2PK59Tm9F7DUAsGuPQl8qt3LhDXBN013dasbi/5nyA=
-github.com/networkservicemesh/networkservicemesh/controlplane/api v0.0.0-20200116214944-fa2a5cf363dd/go.mod h1:OEQYaXRLPMT7zzKzxBC9vSp+JoNZc7Hc15EtiG4Gp+Y=
-github.com/networkservicemesh/sdk v0.0.0-20200117085339-70bafa84ad89 h1:RJ9A4iuereR375aUKZx9K50obUSL6qZQTLDuhGcVb8U=
-github.com/networkservicemesh/sdk v0.0.0-20200117085339-70bafa84ad89/go.mod h1:fpEa/TpBYQueAELvB57SAUSL8xz3xXbAtkwCOQ8mgxQ=
+github.com/networkservicemesh/networkservicemesh/controlplane/api v0.0.0-20200119012001-2963e9620442 h1:47MjZtmptxZTtnGO/wdhs2VtgsK3UvAp71TSdxOzTiE=
+github.com/networkservicemesh/networkservicemesh/controlplane/api v0.0.0-20200119012001-2963e9620442/go.mod h1:OEQYaXRLPMT7zzKzxBC9vSp+JoNZc7Hc15EtiG4Gp+Y=
+github.com/networkservicemesh/sdk v0.0.0-20200118165330-b696088b9d3b h1:CqBOE+EJFOvlYqmyyvLcRb7793RT6TaATLq61GqpWBY=
+github.com/networkservicemesh/sdk v0.0.0-20200118165330-b696088b9d3b/go.mod h1:fpEa/TpBYQueAELvB57SAUSL8xz3xXbAtkwCOQ8mgxQ=
 github.com/onsi/ginkgo v1.6.0 h1:Ix8l273rp3QzYgXSR+c8d1fTG7UPgYkOSELPhiY/YGw=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/gomega v1.8.1 h1:C5Dqfs/LeauYDX0jJXIe2SWmwCbGzx9yF8C8xy3Lh34=
