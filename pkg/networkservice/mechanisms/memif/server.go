@@ -30,8 +30,9 @@ import (
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/memif"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
+
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
 type memifServer struct {
