@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package setipkernel
+package ipaddress
 
 import (
 	"context"
@@ -35,9 +35,9 @@ type setIPKernelClient struct{}
 
 // NewClient provides a NetworkServiceClient that sets the IP on a kernel interface
 // It sets the IP Address on the *kernel* side of an interface leaving the
-// Endpoint.  Generally only used by privileged Endpoints like those implementing
+// Client.  Generally only used by privileged Clients like those implementing
 // the Cross Connect Network Service for K8s (formerly known as NSM Forwarder).
-//                                         Endpoint
+//                                         Client
 //                              +---------------------------+
 //                              |                           |
 //                              |                           |
@@ -47,7 +47,7 @@ type setIPKernelClient struct{}
 //                              |                           |
 //                              |                           |
 //                              |                           +-------------------+
-//                              |                           |          setipkernel.NewClient()
+//                              |                           |          ipaddress.NewClient()
 //                              |                           |
 //                              |                           |
 //                              |                           |

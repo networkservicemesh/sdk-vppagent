@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package setipvpp
+package macaddress
 
 import (
 	"context"
@@ -29,10 +29,10 @@ import (
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
-type setVppIPServer struct{}
+type setMacVppServer struct{}
 
-// NewServer creates a NetworkServiceServer chain element to set the ip address on a vpp interface
-// It sets the IP Address on the *vpp* side of an interface plugged into the
+// NewServer creates a NetworkServiceServer chain element to set the mac address on a vpp interface
+// It sets the Mac Address on the *vpp* side of an interface plugged into the
 // Endpoint.
 //                                         Endpoint
 //                              +---------------------------+
@@ -43,7 +43,7 @@ type setVppIPServer struct{}
 //                              |                           |
 //                              |                           |
 //                              |                           |
-//          +-------------------+ setipvpp.NewServer()      |
+//          +-------------------+macaddress.NewServer()     |
 //                              |                           |
 //                              |                           |
 //                              |                           |
@@ -54,23 +54,22 @@ type setVppIPServer struct{}
 //                              +---------------------------+
 //
 func NewServer() networkservice.NetworkServiceServer {
-	return &setVppIPServer{}
+	return &setMacVppServer{}
 }
 
-func (s *setVppIPServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (s *setMacVppServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
 	conf := vppagent.Config(ctx)
 	conn, err := next.Client(ctx).Request(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	index := len(conf.GetVppConfig().GetInterfaces()) - 1
-	conf.GetVppConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetDstIpAddr()}
+	conf.GetVppConfig().GetInterfaces()[index+1].PhysAddress = conn.GetContext().GetEthernetContext().GetDstMac()
 	return conn, nil
 }
 
-func (s *setVppIPServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (s *setMacVppServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
 	conf := vppagent.Config(ctx)
-	index := len(conf.GetVppConfig().GetInterfaces()) - 1
-	conf.GetVppConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetDstIpAddr()}
+	conf.GetVppConfig().GetInterfaces()[len(conf.GetVppConfig().GetInterfaces())-1].PhysAddress = conn.GetContext().GetEthernetContext().GetDstMac()
 	return next.Client(ctx).Close(ctx, conn)
 }

@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package setroutekernel provides a NetworkServiceServer that sets the routes in the kernel from the connection context
-package setroutekernel
+// Package routes provides a NetworkServiceServer that sets the routes in the kernel from the connection context
+package routes
 
 import (
 	"context"
@@ -50,7 +50,7 @@ type setKernelRoute struct{}
 //  |                               |         |                           |
 //                                            |                           |
 //  |                               |         |                           |
-//      setroutekernel.NewServer()            |                           |
+//      routes.NewServer()                    |                           |
 //  |                               |         |                           |
 //                                            |                           |
 //  |                               |         |                           |

@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package setipvpp provides networkservice chain elements to set the ip address on vpp interfaces
-package setipvpp
+// Package ipaddress provides networkservice chain elements to set the ip address on vpp interfaces
+package ipaddress
 
 import (
 	"context"
@@ -45,7 +45,7 @@ type setVppIPClient struct{}
 //                              |                           |
 //                              |                           |
 //                              |                           |
-//                              |       setipvpp.NewClient()+-------------------+
+//                              |      ipaddress.NewClient()+-------------------+
 //                              |                           |
 //                              |                           |
 //                              |                           |

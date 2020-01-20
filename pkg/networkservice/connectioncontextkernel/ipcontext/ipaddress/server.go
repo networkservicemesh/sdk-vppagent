@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package setipkernel provides networkservice chain elements that support setting ip addresses on kernel interfaces
-package setipkernel
+// Package ipaddress provides networkservice chain elements that support setting ip addresses on kernel interfaces
+package ipaddress
 
 import (
 	"context"
@@ -47,7 +47,7 @@ type setIPKernelServer struct{}
 //                              |                           |
 //                              |                           |
 //          +-------------------+                           |
-//  setipkernel.NewServer()     |                           |
+//  ipaddress.NewServer()       |                           |
 //                              |                           |
 //                              |                           |
 //                              |                           |

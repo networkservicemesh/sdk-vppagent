@@ -14,25 +14,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package setmacvpp
+// Package macaddress provides networkservice chain elements for setting the mac address on vpp interfaces
+package macaddress
 
 import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
 
-	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
-
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
+
+	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 )
 
-type setMacVppServer struct{}
+type setMacVppClient struct{}
 
-// NewServer creates a NetworkServiceServer chain element to set the mac address on a vpp interface
-// It sets the Mac Address on the *vpp* side of an interface plugged into the
+// NewClient creates a NetworkServiceClient chain element to set the mac address on a vpp interface
+// It sets the Mac Address on the *vpp* side of an interface leaving the
 // Endpoint.
 //                                         Endpoint
 //                              +---------------------------+
@@ -43,7 +45,7 @@ type setMacVppServer struct{}
 //                              |                           |
 //                              |                           |
 //                              |                           |
-//          +-------------------+ setmacvpp.NewServer()     |
+//                              |     macaddress.NewClient()+-------------------+
 //                              |                           |
 //                              |                           |
 //                              |                           |
@@ -53,23 +55,23 @@ type setMacVppServer struct{}
 //                              |                           |
 //                              +---------------------------+
 //
-func NewServer() networkservice.NetworkServiceServer {
-	return &setMacVppServer{}
+func NewClient() networkservice.NetworkServiceClient {
+	return &setMacVppClient{}
 }
 
-func (s *setMacVppServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (s *setMacVppClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*connection.Connection, error) {
 	conf := vppagent.Config(ctx)
-	conn, err := next.Client(ctx).Request(ctx, request)
+	conn, err := next.Client(ctx).Request(ctx, request, opts...)
 	if err != nil {
 		return nil, err
 	}
 	index := len(conf.GetVppConfig().GetInterfaces()) - 1
-	conf.GetVppConfig().GetInterfaces()[index+1].PhysAddress = conn.GetContext().GetEthernetContext().GetDstMac()
+	conf.GetVppConfig().GetInterfaces()[index+1].PhysAddress = conn.GetContext().GetEthernetContext().GetSrcMac()
 	return conn, nil
 }
 
-func (s *setMacVppServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (s *setMacVppClient) Close(ctx context.Context, conn *connection.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
 	conf := vppagent.Config(ctx)
-	conf.GetVppConfig().GetInterfaces()[len(conf.GetVppConfig().GetInterfaces())-1].PhysAddress = conn.GetContext().GetEthernetContext().GetDstMac()
-	return next.Client(ctx).Close(ctx, conn)
+	conf.GetVppConfig().GetInterfaces()[len(conf.GetVppConfig().GetInterfaces())-1].PhysAddress = conn.GetContext().GetEthernetContext().GetSrcMac()
+	return next.Client(ctx).Close(ctx, conn, opts...)
 }
