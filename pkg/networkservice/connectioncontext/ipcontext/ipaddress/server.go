@@ -59,7 +59,7 @@ func NewServer() networkservice.NetworkServiceServer {
 
 func (s *setVppIPServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
 	conf := vppagent.Config(ctx)
-	conn, err := next.Client(ctx).Request(ctx, request)
+	conn, err := next.Server(ctx).Request(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -72,5 +72,5 @@ func (s *setVppIPServer) Close(ctx context.Context, conn *connection.Connection)
 	conf := vppagent.Config(ctx)
 	index := len(conf.GetVppConfig().GetInterfaces()) - 1
 	conf.GetVppConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetDstIpAddr()}
-	return next.Client(ctx).Close(ctx, conn)
+	return next.Server(ctx).Close(ctx, conn)
 }
