@@ -9,7 +9,7 @@ require (
 	github.com/ligato/cn-infra v2.2.0+incompatible // indirect
 	github.com/ligato/vpp-agent v2.5.1+incompatible
 	github.com/networkservicemesh/networkservicemesh/controlplane/api v0.2.0
-	github.com/networkservicemesh/sdk v0.0.0-20200117085339-70bafa84ad89
+	github.com/networkservicemesh/sdk v0.0.0-20200118165330-b696088b9d3b
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0 // indirect
@@ -21,5 +21,3 @@ require (
 replace github.com/networkservicemesh/networkservicemesh/controlplane/api => github.com/networkservicemesh/networkservicemesh/controlplane/api v0.0.0-20200119012001-2963e9620442
 
 replace github.com/satori/go.uuid => github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
-
-replace github.com/networkservicemesh/sdk => github.com/networkservicemesh/sdk v0.0.0-20200118165330-b696088b9d3b

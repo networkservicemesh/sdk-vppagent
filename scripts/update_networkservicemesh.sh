@@ -20,15 +20,3 @@ while IFS='' read -r line
 do
     MODS+=("$line")
 done < <( grep "github.com/networkservicemesh/networkservicemesh" go.mod  | sed 's/^replace //' | awk '{print $1}' | sort -u)
-
-
-for MOD in "${MODS[@]}"; do
-  go mod edit "-replace=${MOD}=${MOD}@${V}"
-done
-go mod tidy
-
-V=$(
-        go mod download -json "github.com/networkservicemesh/sdk@${BRANCH}" |
-        sed -n 's|.*"Version": "\(.*\)".*|\1|p'
-    )
-go mod edit "-replace=github.com/networkservicemesh/sdk=github.com/networkservicemesh/sdk@${V}"
