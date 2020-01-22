@@ -10,11 +10,6 @@ set -euo pipefail
 
 BRANCH=master
 
-V=$(
-        go mod download -json "github.com/networkservicemesh/networkservicemesh/controlplane/api@${BRANCH}" |
-        sed -n 's|.*"Version": "\(.*\)".*|\1|p'
-    )
-
 MODS=()
 while IFS='' read -r line
 do
