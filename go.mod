@@ -9,7 +9,7 @@ require (
 	github.com/ligato/cn-infra v2.2.0+incompatible // indirect
 	github.com/ligato/vpp-agent v2.5.1+incompatible
 	github.com/networkservicemesh/networkservicemesh/controlplane/api v0.2.0
-	github.com/networkservicemesh/sdk v0.0.0-20200123000112-2d10bd81042a
+	github.com/networkservicemesh/sdk v0.0.0-20200123151715-46539bd13fd1
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0 // indirect
