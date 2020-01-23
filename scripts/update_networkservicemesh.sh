@@ -8,8 +8,6 @@ cd "${DIR}"
 
 set -euo pipefail
 
-BRANCH=master
-
 MODS=()
 while IFS='' read -r line
 do
