@@ -19,10 +19,10 @@
 package connectioncontextkernel
 
 import (
-	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/chain"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontextkernel/ethernetcontext/macaddress"
+	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
+
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontextkernel/ipcontext/ipaddress"
 )
 
@@ -52,6 +52,5 @@ import (
 func NewClient() networkservice.NetworkServiceClient {
 	return chain.NewNetworkServiceClient(
 		ipaddress.NewClient(),
-		macaddress.NewClient(),
 	)
 }

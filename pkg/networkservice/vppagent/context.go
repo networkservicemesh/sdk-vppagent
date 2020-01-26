@@ -32,7 +32,7 @@ const (
 	configKey contextKeyType = "configKey"
 )
 
-// WithConfig gets vppagent config from context
+// withConfig gets vppagent config from context
 func withConfig(ctx context.Context) context.Context {
 	if config, ok := ctx.Value(configKey).(*configurator.Config); ok && config != nil {
 		return ctx

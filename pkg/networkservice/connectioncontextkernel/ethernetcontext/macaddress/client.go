@@ -1,3 +1,5 @@
+// Copyright (c) 2020 Doc.ai and/or its affiliates.
+//
 // Copyright (c) 2020 Cisco Systems, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -60,23 +62,20 @@ func NewClient() networkservice.NetworkServiceClient {
 	return &setKernelMacClient{}
 }
 
-func (s *setKernelMacClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*connection.Connection, error) {
-	conf := vppagent.Config(ctx)
-	conn, err := next.Client(ctx).Request(ctx, request, opts...)
-	if err != nil {
-		return nil, err
+func (c *setKernelMacClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*connection.Connection, error) {
+	config := vppagent.Config(ctx)
+	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil && len(config.GetLinuxConfig().GetInterfaces()) > 0 {
+		current := len(config.LinuxConfig.Interfaces) - 1
+		config.LinuxConfig.Interfaces[current].PhysAddress = request.GetConnection().GetContext().GetEthernetContext().GetSrcMac()
 	}
-	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil {
-		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
-		conf.GetLinuxConfig().GetInterfaces()[index+1].PhysAddress = conn.GetContext().GetEthernetContext().GetSrcMac()
-	}
-	return conn, nil
+	return next.Client(ctx).Request(ctx, request, opts...)
 }
 
-func (s *setKernelMacClient) Close(ctx context.Context, conn *connection.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
-	conf := vppagent.Config(ctx)
-	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
-		conf.GetLinuxConfig().GetInterfaces()[len(conf.GetVppConfig().GetInterfaces())-1].PhysAddress = conn.GetContext().GetEthernetContext().GetSrcMac()
+func (c *setKernelMacClient) Close(ctx context.Context, conn *connection.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
+	config := vppagent.Config(ctx)
+	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil && len(config.GetLinuxConfig().GetInterfaces()) > 0 {
+		current := len(config.LinuxConfig.Interfaces) - 1
+		config.LinuxConfig.Interfaces[current].PhysAddress = conn.GetContext().GetEthernetContext().GetSrcMac()
 	}
 	return next.Client(ctx).Close(ctx, conn, opts...)
 }

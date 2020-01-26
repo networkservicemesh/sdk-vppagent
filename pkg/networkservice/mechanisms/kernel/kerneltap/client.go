@@ -21,11 +21,12 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
+
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/cls"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/common"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/kernel"
-	"github.com/pkg/errors"
-	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/netnsinode"
 

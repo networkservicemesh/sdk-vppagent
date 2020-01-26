@@ -1,3 +1,5 @@
+// Copyright (c) 2020 Doc.ai and/or its affiliates.
+//
 // Copyright (c) 2020 Cisco Systems, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -17,12 +19,27 @@
 package vppagent
 
 import (
-	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
+	"context"
 
-	"github.com/networkservicemesh/sdk/pkg/networkservice/core/adapters"
+	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
+	"google.golang.org/grpc"
+
+	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection"
+	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
 )
+
+type configClient struct{}
+
+func (c configClient) Request(ctx context.Context, in *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*connection.Connection, error) {
+	return next.Client(ctx).Request(withConfig(ctx), in, opts...)
+}
+
+func (c configClient) Close(ctx context.Context, in *connection.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
+	return next.Client(ctx).Close(withConfig(ctx), in, opts...)
+}
 
 // NewClient - inserts a vppagent *configurator.Config into the GRPC call context.Context
 func NewClient() networkservice.NetworkServiceClient {
-	return adapters.NewServerToClient(&configServer{})
+	return &configClient{}
 }

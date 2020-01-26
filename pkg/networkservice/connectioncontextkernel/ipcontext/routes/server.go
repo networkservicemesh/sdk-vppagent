@@ -24,10 +24,11 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/ligato/vpp-agent/api/models/linux"
 	linuxl3 "github.com/ligato/vpp-agent/api/models/linux/l3"
+	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
+
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/kernel"
 	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
-	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
