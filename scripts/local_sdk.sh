@@ -12,10 +12,10 @@ MODS=()
 while IFS='' read -r line
 do
     MODS+=("$line")
-done < <( grep "github.com/networkservicemesh/networkservicemesh" go.mod  | sed 's/^replace //' | awk '{print $1}' | sort -u)
+done < <( grep "github.com/networkservicemesh/sdk" go.mod  | sed 's/^replace //' | awk '{print $1}' | sort -u)
 
 
 for MOD in "${MODS[@]}"; do
-  go mod edit -replace="${MOD}"="${MOD/github.com\/networkservicemesh\/networkservicemesh/../networkservicemesh}"
+  go mod edit -replace="${MOD}"="${MOD/github.com\/networkservicemesh\/sdk/../sdk}"
 done
 go mod tidy

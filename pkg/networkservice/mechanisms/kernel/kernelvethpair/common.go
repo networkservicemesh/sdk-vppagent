@@ -24,9 +24,9 @@ import (
 	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
 	"github.com/sirupsen/logrus"
 
-	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection"
-	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/common"
-	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection/mechanisms/kernel"
+	"github.com/networkservicemesh/api/pkg/api/connection"
+	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/common"
+	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/kernel"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/netnsinode"

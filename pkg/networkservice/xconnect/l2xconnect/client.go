@@ -26,8 +26,8 @@ import (
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
-	"github.com/networkservicemesh/networkservicemesh/controlplane/api/connection"
-	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
+	"github.com/networkservicemesh/api/pkg/api/connection"
+	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )

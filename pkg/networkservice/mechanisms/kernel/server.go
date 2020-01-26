@@ -21,7 +21,7 @@ package kernel
 import (
 	"os"
 
-	"github.com/networkservicemesh/networkservicemesh/controlplane/api/networkservice"
+	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel/kerneltap"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel/kernelvethpair"
