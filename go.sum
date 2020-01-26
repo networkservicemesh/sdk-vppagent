@@ -92,8 +92,8 @@ github.com/mna/pigeon v0.0.0-20180808201053-bb0192cfc2ae/go.mod h1:Iym28+kJVnC1h
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/networkservicemesh/api v0.0.0-20200125205131-0623273c4e70 h1:yemhPE1IXwrYf3beh76Rq6+EXAjZ8q45l7TiTjfvqes=
 github.com/networkservicemesh/api v0.0.0-20200125205131-0623273c4e70/go.mod h1:L/KGgNEDjCYFQUE0ifSCBf/wkPxKuohZ4ygjHVeOF2I=
-github.com/networkservicemesh/sdk v0.0.0-20200126180355-103bfac91336 h1:SMqVvtvyWIbNiniJsnWbY4IHDQHORjcXWemjVYFhCRg=
-github.com/networkservicemesh/sdk v0.0.0-20200126180355-103bfac91336/go.mod h1:6DA9yCMzVsZ/fVYoo2U6obdHojx7vKJ0wpeuMj13sAk=
+github.com/networkservicemesh/sdk v0.0.0-20200126182747-d740099a8c9e h1:buBbj8dTunnPBjJip63L0Z0q07SJM9VzsmJ6PFGvVso=
+github.com/networkservicemesh/sdk v0.0.0-20200126182747-d740099a8c9e/go.mod h1:t3aLe8O1No2aSmq69i29aTmm9/kgPuX45kaRjnYl2L4=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/olekukonko/tablewriter v0.0.1/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=
 github.com/onsi/ginkgo v1.6.0 h1:Ix8l273rp3QzYgXSR+c8d1fTG7UPgYkOSELPhiY/YGw=
