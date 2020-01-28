@@ -52,7 +52,7 @@ func (k *kernelTapClient) Request(ctx context.Context, request *networkservice.N
 		Cls:  cls.LOCAL,
 		Type: kernel.MECHANISM,
 		Parameters: map[string]string{
-			common.NetNsInodeKey: string(inodeNum),
+			common.NetNSInodeKey: string(inodeNum),
 		},
 	}
 	request.MechanismPreferences = append(request.MechanismPreferences, mechanism)

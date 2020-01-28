@@ -52,7 +52,7 @@ func (k *kernelVethPairClient) Request(ctx context.Context, request *networkserv
 		Cls:  cls.LOCAL,
 		Type: kernel.MECHANISM,
 		Parameters: map[string]string{
-			common.NetNsInodeKey: string(inodeNum),
+			common.NetNSInodeKey: string(inodeNum),
 		},
 	}
 	request.MechanismPreferences = append(request.MechanismPreferences, preferredMechanism)
