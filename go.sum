@@ -90,10 +90,10 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mna/pigeon v0.0.0-20180808201053-bb0192cfc2ae/go.mod h1:Iym28+kJVnC1hfQvv5MUtI6AiFFzvQjHcvI4RFTG/04=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
-github.com/networkservicemesh/api v0.0.0-20200128225323-115ccb4c0318 h1:PBNUPrtYXOklQ8YVdlISJIHY9GtUBVqRObbeSJLUjQY=
-github.com/networkservicemesh/api v0.0.0-20200128225323-115ccb4c0318/go.mod h1:L/KGgNEDjCYFQUE0ifSCBf/wkPxKuohZ4ygjHVeOF2I=
-github.com/networkservicemesh/sdk v0.0.0-20200128225613-e7e884ec756c h1:cN9/yIirvfCz7iVjcaFkya7bh/BDk5vHGNZxweiBWyU=
-github.com/networkservicemesh/sdk v0.0.0-20200128225613-e7e884ec756c/go.mod h1:BMn2w2sbpVM0Zn8mktmcsl5bShOAQils6rIo3C/4X6U=
+github.com/networkservicemesh/api v0.0.0-20200129141249-737163382ea0 h1:Hz7ZhGtQryctZAHVtvzeHb/RPb2N6mUWIzSyOa1e8gI=
+github.com/networkservicemesh/api v0.0.0-20200129141249-737163382ea0/go.mod h1:L/KGgNEDjCYFQUE0ifSCBf/wkPxKuohZ4ygjHVeOF2I=
+github.com/networkservicemesh/sdk v0.0.0-20200129162559-4aa02bad7b63 h1:xMuehiAcpglfcU/EdAX8A0bUtAH8gx3IfIJhNW2/ojo=
+github.com/networkservicemesh/sdk v0.0.0-20200129162559-4aa02bad7b63/go.mod h1:mkJh+XZ5wGAt8kJFMZ3nYxuS/W8/Ry0i4DznuFc1+aw=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/olekukonko/tablewriter v0.0.1/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=
 github.com/onsi/ginkgo v1.6.0 h1:Ix8l273rp3QzYgXSR+c8d1fTG7UPgYkOSELPhiY/YGw=
