@@ -23,7 +23,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
+	
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
@@ -59,7 +59,7 @@ func NewClient() networkservice.NetworkServiceClient {
 	return &setVppIPClient{}
 }
 
-func (s *setVppIPClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*connection.Connection, error) {
+func (s *setVppIPClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
 	conf := vppagent.Config(ctx)
 	conn, err := next.Client(ctx).Request(ctx, request, opts...)
 	if err != nil {
@@ -70,7 +70,7 @@ func (s *setVppIPClient) Request(ctx context.Context, request *networkservice.Ne
 	return conn, nil
 }
 
-func (s *setVppIPClient) Close(ctx context.Context, conn *connection.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (s *setVppIPClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
 	conf := vppagent.Config(ctx)
 	index := len(conf.GetVppConfig().GetInterfaces()) - 1
 	conf.GetVppConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}

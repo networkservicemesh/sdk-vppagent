@@ -27,8 +27,8 @@ import (
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/vxlan"
+	
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/vxlan"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
@@ -41,21 +41,21 @@ func NewClient() networkservice.NetworkServiceClient {
 	return &vxlanClient{}
 }
 
-func (v *vxlanClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*connection.Connection, error) {
+func (v *vxlanClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
 	if err := v.appendInterfaceConfig(ctx, request.GetConnection()); err != nil {
 		return nil, err
 	}
 	return next.Client(ctx).Request(ctx, request, opts...)
 }
 
-func (v *vxlanClient) Close(ctx context.Context, conn *connection.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (v *vxlanClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
 	if err := v.appendInterfaceConfig(ctx, conn); err != nil {
 		return nil, err
 	}
 	return next.Client(ctx).Close(ctx, conn, opts...)
 }
 
-func (v *vxlanClient) appendInterfaceConfig(ctx context.Context, conn *connection.Connection) error {
+func (v *vxlanClient) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) error {
 	conf := vppagent.Config(ctx)
 	if mechanism := vxlan.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		srcIP, err := mechanism.SrcIP()

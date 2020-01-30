@@ -27,9 +27,9 @@ import (
 	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
 	"google.golang.org/grpc"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/cls"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/memif"
+	
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
@@ -46,8 +46,8 @@ func NewClient(baseDir string) networkservice.NetworkServiceClient {
 	return &memifClient{baseDir: baseDir}
 }
 
-func (m *memifClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*connection.Connection, error) {
-	mechanism := &connection.Mechanism{
+func (m *memifClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
+	mechanism := &networkservice.Mechanism{
 		Cls:        cls.LOCAL,
 		Type:       memif.MECHANISM,
 		Parameters: make(map[string]string),
@@ -61,12 +61,12 @@ func (m *memifClient) Request(ctx context.Context, request *networkservice.Netwo
 	return conn, nil
 }
 
-func (m *memifClient) Close(ctx context.Context, conn *connection.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (m *memifClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
 	m.appendInterfaceConfig(ctx, conn)
 	return next.Client(ctx).Close(ctx, conn, opts...)
 }
 
-func (m *memifClient) appendInterfaceConfig(ctx context.Context, conn *connection.Connection) {
+func (m *memifClient) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) {
 	if mechanism := memif.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		conf := vppagent.Config(ctx)
 		conf.GetVppConfig().Interfaces = append(conf.GetVppConfig().Interfaces, &vpp.Interface{

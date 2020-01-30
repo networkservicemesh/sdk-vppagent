@@ -27,15 +27,15 @@ import (
 	linuxnamespace "github.com/ligato/vpp-agent/api/models/linux/namespace"
 	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/common"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/kernel"
+	"github.com/networkservicemesh/api/pkg/api/networkservice"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/common"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/netnsinode"
 )
 
-func appendInterfaceConfig(ctx context.Context, conn *connection.Connection, name string) error {
+func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection, name string) error {
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		conf := vppagent.Config(ctx)
 		// We append an Interfaces.  Interfaces creates the vpp side of an interface.

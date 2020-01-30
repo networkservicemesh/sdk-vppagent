@@ -23,7 +23,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
+	
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
@@ -36,7 +36,7 @@ func NewServer() networkservice.NetworkServiceServer {
 	return &kernelTapServer{}
 }
 
-func (k *kernelTapServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (k *kernelTapServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	conn, err := next.Server(ctx).Request(ctx, request)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -47,7 +47,7 @@ func (k *kernelTapServer) Request(ctx context.Context, request *networkservice.N
 	return conn, nil
 }
 
-func (k *kernelTapServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (k *kernelTapServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	if err := appendInterfaceConfig(ctx, conn, fmt.Sprintf("server-%s", conn.GetId())); err != nil {
 		return nil, err
 	}

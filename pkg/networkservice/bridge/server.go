@@ -25,7 +25,7 @@ import (
 	l2 "github.com/ligato/vpp-agent/api/models/vpp/l2"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
+	
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
@@ -40,13 +40,13 @@ func NewServer(name string) networkservice.NetworkServiceServer {
 	return &bridgeServer{name: name}
 }
 
-func (b *bridgeServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (b *bridgeServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	conf := vppagent.Config(ctx)
 	b.insertInterfaceIntoBridge(conf)
 	return next.Server(ctx).Request(ctx, request)
 }
 
-func (b *bridgeServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (b *bridgeServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	conf := vppagent.Config(ctx)
 	b.insertInterfaceIntoBridge(conf)
 	return next.Server(ctx).Close(ctx, conn)

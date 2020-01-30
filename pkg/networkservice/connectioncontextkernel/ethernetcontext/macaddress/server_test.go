@@ -25,9 +25,8 @@ import (
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/kernel"
-	"github.com/networkservicemesh/api/pkg/api/connectioncontext"
+	
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
@@ -35,13 +34,13 @@ import (
 
 func TestServerBasic(t *testing.T) {
 	request := &networkservice.NetworkServiceRequest{
-		Connection: &connection.Connection{
+		Connection: &networkservice.Connection{
 			Id: "1",
-			Mechanism: &connection.Mechanism{
+			Mechanism: &networkservice.Mechanism{
 				Type: kernel.MECHANISM,
 			},
-			Context: &connectioncontext.ConnectionContext{
-				EthernetContext: &connectioncontext.EthernetContext{
+			Context: &networkservice.ConnectionContext{
+				EthernetContext: &networkservice.EthernetContext{
 					DstMac: "0a-1b-3c-4d-5e-6f",
 				},
 			},
@@ -56,7 +55,7 @@ type testingServer struct {
 	*testing.T
 }
 
-func (t *testingServer) Request(ctx context.Context, in *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (t *testingServer) Request(ctx context.Context, in *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	config := vppagent.Config(ctx)
 	assert.NotNil(t, config)
 	targetInterface := &linux.Interface{
@@ -73,7 +72,7 @@ func (t *testingServer) Request(ctx context.Context, in *networkservice.NetworkS
 	return conn, err
 }
 
-func (t *testingServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (t *testingServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	config := vppagent.Config(ctx)
 	assert.NotNil(t, config)
 	targetInterface := &linux.Interface{

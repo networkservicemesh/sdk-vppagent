@@ -23,9 +23,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/ligato/vpp-agent/api/configurator"
 	"github.com/ligato/vpp-agent/api/models/linux"
-	"github.com/networkservicemesh/api/pkg/api/connection"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/kernel"
-	"github.com/networkservicemesh/api/pkg/api/connectioncontext"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 	"github.com/sirupsen/logrus"
@@ -45,7 +43,7 @@ type getMacKernelServer struct {
 	client configurator.ConfiguratorClient
 }
 
-func (s *getMacKernelServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (s *getMacKernelServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	var dstInterface *linux.Interface
 	config := vppagent.Config(ctx)
 	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil && len(config.GetLinuxConfig().GetInterfaces()) > 0 {
@@ -60,7 +58,7 @@ func (s *getMacKernelServer) Request(ctx context.Context, request *networkservic
 		}
 		for _, iface := range dump.Dump.LinuxConfig.Interfaces {
 			if iface.Name == dstInterface.Name {
-				request.GetConnection().GetContext().EthernetContext = &connectioncontext.EthernetContext{
+				request.GetConnection().GetContext().EthernetContext = &networkservice.EthernetContext{
 					DstMac: iface.PhysAddress,
 				}
 				break
@@ -70,6 +68,6 @@ func (s *getMacKernelServer) Request(ctx context.Context, request *networkservic
 	return conn, err
 }
 
-func (s *getMacKernelServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (s *getMacKernelServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	return next.Server(ctx).Close(ctx, conn)
 }

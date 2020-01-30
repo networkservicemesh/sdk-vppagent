@@ -23,8 +23,8 @@ import (
 	"github.com/ligato/vpp-agent/api/models/vpp"
 	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/vxlan"
+	
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/vxlan"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
@@ -39,21 +39,21 @@ func NewServer() networkservice.NetworkServiceServer {
 	return &vxlanServer{}
 }
 
-func (v *vxlanServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (v *vxlanServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	if err := v.appendInterfaceConfig(ctx, request.GetConnection()); err != nil {
 		return nil, err
 	}
 	return next.Server(ctx).Request(ctx, request)
 }
 
-func (v *vxlanServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (v *vxlanServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	if err := v.appendInterfaceConfig(ctx, conn); err != nil {
 		return nil, err
 	}
 	return next.Server(ctx).Close(ctx, conn)
 }
 
-func (v *vxlanServer) appendInterfaceConfig(ctx context.Context, conn *connection.Connection) error {
+func (v *vxlanServer) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) error {
 	conf := vppagent.Config(ctx)
 	if mechanism := vxlan.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		// Note: srcIP and Dst Ip are relative to the *client*, and so on the server side are flipped

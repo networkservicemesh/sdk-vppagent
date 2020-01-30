@@ -26,8 +26,8 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/kernel"
+	
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
@@ -62,7 +62,7 @@ func NewServer() networkservice.NetworkServiceServer {
 	return &setKernelMacServer{}
 }
 
-func (s *setKernelMacServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (s *setKernelMacServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil {
 		config := vppagent.Config(ctx)
 		current := len(config.LinuxConfig.Interfaces) - 1
@@ -71,7 +71,7 @@ func (s *setKernelMacServer) Request(ctx context.Context, request *networkservic
 	return next.Server(ctx).Request(ctx, request)
 }
 
-func (s *setKernelMacServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (s *setKernelMacServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		config := vppagent.Config(ctx)
 		current := len(config.LinuxConfig.Interfaces) - 1

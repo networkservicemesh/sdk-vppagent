@@ -23,8 +23,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/ligato/vpp-agent/api/models/linux"
-	"github.com/networkservicemesh/api/pkg/api/connection"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/kernel"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
@@ -38,7 +37,7 @@ func NewServer() networkservice.NetworkServiceServer {
 	return &setKernelArpsServer{}
 }
 
-func (s *setKernelArpsServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (s *setKernelArpsServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	config := vppagent.Config(ctx)
 	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil && len(config.LinuxConfig.Interfaces) > 0 {
 		iface := config.LinuxConfig.Interfaces[len(config.LinuxConfig.Interfaces)-1]
@@ -54,7 +53,7 @@ func (s *setKernelArpsServer) Request(ctx context.Context, request *networkservi
 	return next.Server(ctx).Request(ctx, request)
 }
 
-func (s *setKernelArpsServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (s *setKernelArpsServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	config := vppagent.Config(ctx)
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil && len(config.LinuxConfig.Interfaces) > 0 {
 		iface := config.LinuxConfig.Interfaces[len(config.LinuxConfig.Interfaces)-1]

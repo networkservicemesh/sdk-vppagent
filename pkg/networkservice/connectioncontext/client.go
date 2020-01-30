@@ -37,7 +37,7 @@ import (
 //                              |                                     |
 //                              |                                     |
 //                              |                                     |
-//                              |        connectioncontext.NewClient()+-------------------+
+//                              |        networkservice.NewClient()+-------------------+
 //                              |                                     |
 //                              |                                     |
 //                              |                                     |

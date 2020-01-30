@@ -26,8 +26,8 @@ import (
 	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
 	"github.com/pkg/errors"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/memif"
+	
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
@@ -44,7 +44,7 @@ func NewServer(baseDir string) networkservice.NetworkServiceServer {
 	return &memifServer{baseDir: baseDir}
 }
 
-func (m *memifServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (m *memifServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	conn, err := next.Server(ctx).Request(ctx, request)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -53,12 +53,12 @@ func (m *memifServer) Request(ctx context.Context, request *networkservice.Netwo
 	return conn, nil
 }
 
-func (m *memifServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (m *memifServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	m.appendInterfaceConfig(ctx, conn)
 	return next.Server(ctx).Close(ctx, conn)
 }
 
-func (m *memifServer) appendInterfaceConfig(ctx context.Context, conn *connection.Connection) {
+func (m *memifServer) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) {
 	if mechanism := memif.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		conf := vppagent.Config(ctx)
 		conf.GetVppConfig().Interfaces = append(conf.GetVppConfig().Interfaces, &vpp.Interface{

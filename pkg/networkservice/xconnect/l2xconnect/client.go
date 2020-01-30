@@ -26,7 +26,7 @@ import (
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
+	
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
@@ -39,12 +39,12 @@ func NewClient() networkservice.NetworkServiceClient {
 	return &l2XconnectClient{}
 }
 
-func (l *l2XconnectClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*connection.Connection, error) {
+func (l *l2XconnectClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
 	l.appendInterfaceConfig(ctx)
 	return next.Client(ctx).Request(ctx, request, opts...)
 }
 
-func (l *l2XconnectClient) Close(ctx context.Context, conn *connection.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (l *l2XconnectClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
 	l.appendInterfaceConfig(ctx)
 	return next.Client(ctx).Close(ctx, conn, opts...)
 }

@@ -39,7 +39,7 @@ import (
 //                              |                                    |
 //                              |                                    |
 //                              |                                    |
-//          +-------------------+ connectioncontext.NewServer()      |
+//          +-------------------+ networkservice.NewServer()      |
 //                              |                                    |
 //                              |                                    |
 //                              |                                    |

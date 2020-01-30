@@ -26,7 +26,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
+	
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
@@ -48,7 +48,7 @@ func NewClient(vppagentCC *grpc.ClientConn) networkservice.NetworkServiceClient 
 	}
 }
 
-func (c *commitClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*connection.Connection, error) {
+func (c *commitClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
 	conf := vppagent.Config(ctx)
 	rv, err := next.Client(ctx).Request(ctx, request, opts...)
 	if err != nil {
@@ -61,7 +61,7 @@ func (c *commitClient) Request(ctx context.Context, request *networkservice.Netw
 	return rv, nil
 }
 
-func (c *commitClient) Close(ctx context.Context, conn *connection.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *commitClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
 	conf := vppagent.Config(ctx)
 	rv, err := next.Client(ctx).Close(ctx, conn)
 	if err != nil {

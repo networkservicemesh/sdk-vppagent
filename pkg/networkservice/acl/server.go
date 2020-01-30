@@ -27,7 +27,7 @@ import (
 	vppacl "github.com/ligato/vpp-agent/api/models/vpp/acl"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
+	
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
@@ -43,13 +43,13 @@ func NewServer(rules []*vppacl.ACL_Rule) networkservice.NetworkServiceServer {
 	return &acl{rules: rules}
 }
 
-func (a *acl) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (a *acl) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	conf := vppagent.Config(ctx)
 	a.appendACLConfig(conf)
 	return next.Server(ctx).Request(ctx, request)
 }
 
-func (a *acl) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (a *acl) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	conf := vppagent.Config(ctx)
 	a.appendACLConfig(conf)
 	return next.Server(ctx).Close(ctx, conn)

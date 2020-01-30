@@ -24,7 +24,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
+	
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
@@ -46,7 +46,7 @@ func NewServer(vppagentCC *grpc.ClientConn) networkservice.NetworkServiceServer 
 	}
 }
 
-func (c *commitServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (c *commitServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	conf := vppagent.Config(ctx)
 	_, err := c.vppagentClient.Update(ctx, &configurator.UpdateRequest{Update: conf})
 	if err != nil {
@@ -55,7 +55,7 @@ func (c *commitServer) Request(ctx context.Context, request *networkservice.Netw
 	return next.Server(ctx).Request(ctx, request)
 }
 
-func (c *commitServer) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (c *commitServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	conf := vppagent.Config(ctx)
 	_, err := c.vppagentClient.Delete(ctx, &configurator.DeleteRequest{Delete: conf})
 	if err != nil {

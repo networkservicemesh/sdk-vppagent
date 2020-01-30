@@ -24,13 +24,13 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/cls"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/common"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/kernel"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/common"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/netnsinode"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
+	
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
@@ -43,12 +43,12 @@ func NewClient() networkservice.NetworkServiceClient {
 	return &kernelTapClient{}
 }
 
-func (k *kernelTapClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*connection.Connection, error) {
+func (k *kernelTapClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
 	inodeNum, err := netnsinode.GetMyNetNSInodeNum()
 	if err != nil {
 		return nil, err
 	}
-	mechanism := &connection.Mechanism{
+	mechanism := &networkservice.Mechanism{
 		Cls:  cls.LOCAL,
 		Type: kernel.MECHANISM,
 		Parameters: map[string]string{
@@ -66,7 +66,7 @@ func (k *kernelTapClient) Request(ctx context.Context, request *networkservice.N
 	return conn, nil
 }
 
-func (k *kernelTapClient) Close(ctx context.Context, conn *connection.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (k *kernelTapClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
 	if err := appendInterfaceConfig(ctx, conn, fmt.Sprintf("client-%s", conn.GetId())); err != nil {
 		return nil, err
 	}

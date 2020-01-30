@@ -26,8 +26,8 @@ import (
 	linuxl3 "github.com/ligato/vpp-agent/api/models/linux/l3"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
-	"github.com/networkservicemesh/api/pkg/api/connection"
-	"github.com/networkservicemesh/api/pkg/api/connection/mechanisms/kernel"
+	
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
@@ -61,17 +61,17 @@ func NewServer() networkservice.NetworkServiceServer {
 	return &setKernelRoute{}
 }
 
-func (s *setKernelRoute) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*connection.Connection, error) {
+func (s *setKernelRoute) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	s.addRoutes(ctx, request.GetConnection())
 	return next.Server(ctx).Request(ctx, request)
 }
 
-func (s *setKernelRoute) Close(ctx context.Context, conn *connection.Connection) (*empty.Empty, error) {
+func (s *setKernelRoute) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	s.addRoutes(ctx, conn)
 	return next.Server(ctx).Close(ctx, conn)
 }
 
-func (s *setKernelRoute) addRoutes(ctx context.Context, conn *connection.Connection) {
+func (s *setKernelRoute) addRoutes(ctx context.Context, conn *networkservice.Connection) {
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		duplicatedPrefixes := make(map[string]bool)
 		for _, route := range conn.GetContext().GetIpContext().GetSrcRoutes() {
