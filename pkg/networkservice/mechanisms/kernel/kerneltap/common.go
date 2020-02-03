@@ -51,7 +51,7 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 				},
 			},
 		})
-		filepath, err := netnsinode.LinuxNetNsFileName(mechanism.GetParameters()[common.NetNSInodeKey])
+		filepath, err := netnsinode.LinuxNetNSFileName(mechanism.GetParameters()[common.NetNSInodeKey])
 		if err != nil {
 			return err
 		}

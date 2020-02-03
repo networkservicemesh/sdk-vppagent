@@ -26,9 +26,8 @@ import (
 	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
 	"github.com/pkg/errors"
 
-	
-	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 

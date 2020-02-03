@@ -156,3 +156,8 @@ issues:
   exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
+  exclude-rules:
+    - path: pkg/networkservice/mechanisms/srv6/common.go
+      linters:
+        - funlen
+      text: "Function 'appendInterfaceConfig' is too long"

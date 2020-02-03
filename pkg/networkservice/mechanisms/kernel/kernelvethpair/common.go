@@ -35,7 +35,7 @@ import (
 func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection, name string) error {
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		conf := vppagent.Config(ctx)
-		filepath, err := netnsinode.LinuxNetNsFileName(mechanism.GetParameters()[common.NetNSInodeKey])
+		filepath, err := netnsinode.LinuxNetNSFileName(mechanism.GetParameters()[common.NetNSInodeKey])
 		if err != nil {
 			return err
 		}

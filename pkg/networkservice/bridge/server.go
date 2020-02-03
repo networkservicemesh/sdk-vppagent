@@ -25,7 +25,6 @@ import (
 	l2 "github.com/ligato/vpp-agent/api/models/vpp/l2"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
-	
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
