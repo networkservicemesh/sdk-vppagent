@@ -24,8 +24,6 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/ligato/vpp-agent/api/models/vpp"
 	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
-	"github.com/pkg/errors"
-
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
 
@@ -44,12 +42,8 @@ func NewServer(baseDir string) networkservice.NetworkServiceServer {
 }
 
 func (m *memifServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
-	conn, err := next.Server(ctx).Request(ctx, request)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	m.appendInterfaceConfig(ctx, conn)
-	return conn, nil
+	m.appendInterfaceConfig(ctx, request.GetConnection())
+	return request.GetConnection(), nil
 }
 
 func (m *memifServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
