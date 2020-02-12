@@ -57,14 +57,6 @@ func (v *vxlanClient) Close(ctx context.Context, conn *networkservice.Connection
 func (v *vxlanClient) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) error {
 	conf := vppagent.Config(ctx)
 	if mechanism := vxlan.ToMechanism(conn.GetMechanism()); mechanism != nil {
-		srcIP, err := mechanism.SrcIP()
-		if err != nil {
-			return err
-		}
-		dstIP, err := mechanism.DstIP()
-		if err != nil {
-			return err
-		}
 		vni, err := mechanism.VNI()
 		if err != nil {
 			return err
@@ -75,8 +67,8 @@ func (v *vxlanClient) appendInterfaceConfig(ctx context.Context, conn *networkse
 			Enabled: true,
 			Link: &vppinterfaces.Interface_Vxlan{
 				Vxlan: &vppinterfaces.VxlanLink{
-					SrcAddress: dstIP,
-					DstAddress: srcIP,
+					SrcAddress: mechanism.SrcIP().String(),
+					DstAddress: mechanism.DstIP().String(),
 					Vni:        vni,
 				},
 			},

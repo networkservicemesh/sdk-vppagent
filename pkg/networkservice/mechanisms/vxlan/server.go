@@ -55,15 +55,6 @@ func (v *vxlanServer) Close(ctx context.Context, conn *networkservice.Connection
 func (v *vxlanServer) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) error {
 	conf := vppagent.Config(ctx)
 	if mechanism := vxlan.ToMechanism(conn.GetMechanism()); mechanism != nil {
-		// Note: srcIP and Dst Ip are relative to the *client*, and so on the server side are flipped
-		srcIP, err := mechanism.DstIP()
-		if err != nil {
-			return err
-		}
-		dstIP, err := mechanism.SrcIP()
-		if err != nil {
-			return err
-		}
 		// TODO do VNI selection here
 		vni, err := mechanism.VNI()
 		if err != nil {
@@ -75,8 +66,9 @@ func (v *vxlanServer) appendInterfaceConfig(ctx context.Context, conn *networkse
 			Enabled: true,
 			Link: &vppinterfaces.Interface_Vxlan{
 				Vxlan: &vppinterfaces.VxlanLink{
-					SrcAddress: dstIP,
-					DstAddress: srcIP,
+					// Note: srcIP and Dst Ip are relative to the *client*, and so on the server side are flipped
+					SrcAddress: mechanism.DstIP().String(),
+					DstAddress: mechanism.SrcIP().String(),
 					Vni:        vni,
 				},
 			},
