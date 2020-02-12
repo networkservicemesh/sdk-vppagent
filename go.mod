@@ -8,8 +8,8 @@ require (
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/ligato/cn-infra v2.2.0+incompatible // indirect
 	github.com/ligato/vpp-agent v2.5.1+incompatible
-	github.com/networkservicemesh/api v0.0.0-20200208172603-6187568215e2
-	github.com/networkservicemesh/sdk v0.0.0-20200211141432-82d169e57359
+	github.com/networkservicemesh/api v0.0.0-20200212144428-58cb0c5e4e02
+	github.com/networkservicemesh/sdk v0.0.0-20200212191202-8d845dad3153
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0 // indirect
