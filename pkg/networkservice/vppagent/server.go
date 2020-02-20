@@ -34,9 +34,9 @@ func NewServer() networkservice.NetworkServiceServer {
 }
 
 func (c *configServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
-	return next.Server(ctx).Request(withConfig(ctx), request)
+	return next.Server(ctx).Request(WithConfig(ctx), request)
 }
 
 func (c *configServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
-	return next.Server(ctx).Close(withConfig(ctx), conn)
+	return next.Server(ctx).Close(WithConfig(ctx), conn)
 }

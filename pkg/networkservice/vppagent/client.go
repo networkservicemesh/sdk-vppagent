@@ -31,11 +31,11 @@ import (
 type configClient struct{}
 
 func (c configClient) Request(ctx context.Context, in *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
-	return next.Client(ctx).Request(withConfig(ctx), in, opts...)
+	return next.Client(ctx).Request(WithConfig(ctx), in, opts...)
 }
 
 func (c configClient) Close(ctx context.Context, in *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
-	return next.Client(ctx).Close(withConfig(ctx), in, opts...)
+	return next.Client(ctx).Close(WithConfig(ctx), in, opts...)
 }
 
 // NewClient - inserts a vppagent *configurator.Config into the GRPC call context.Context
