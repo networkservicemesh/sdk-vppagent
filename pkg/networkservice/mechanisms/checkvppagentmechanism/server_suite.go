@@ -40,6 +40,7 @@ import (
 func NewServerSuite(
 	serverUnderTest networkservice.NetworkServiceServer,
 	mechanismType string,
+	mechanismCheck func(t *testing.T, mechanism *networkservice.Mechanism),
 	vppCheckOnReturn func(*testing.T, *configurator.Config),
 	request *networkservice.NetworkServiceRequest,
 	connClose *networkservice.Connection,
@@ -48,6 +49,7 @@ func NewServerSuite(
 		serverUnderTest,
 		vppagent.WithConfig,
 		mechanismType,
+		mechanismCheck,
 		func(t *testing.T, ctx context.Context) {
 			conf := vppagent.Config(ctx)
 			require.NotNil(t, conf)

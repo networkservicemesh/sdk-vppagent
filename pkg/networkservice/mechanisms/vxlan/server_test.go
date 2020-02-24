@@ -63,6 +63,10 @@ func TestVxlanServer(t *testing.T) {
 	suite.Run(t, checkvppagentmechanism.NewServerSuite(
 		vxlan.NewServer(dstIP),
 		vxlan_mechanism.MECHANISM,
+		func(t *testing.T, mechanism *networkservice.Mechanism) {
+			m := vxlan_mechanism.ToMechanism(mechanism)
+			assert.Equal(t, dstIP, m.DstIP())
+		},
 		func(t *testing.T, conf *configurator.Config) {
 			// Basic Checks
 			vppConfig := conf.GetVppConfig()

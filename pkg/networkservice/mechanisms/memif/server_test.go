@@ -56,6 +56,11 @@ func TestMemifServer(t *testing.T) {
 		checkvppagentmechanism.NewServerSuite(
 			memif_mechanism.NewServer(BaseDir),
 			memif.MECHANISM,
+			func(t *testing.T, mechanism *networkservice.Mechanism) {
+				m := memif.ToMechanism(mechanism)
+				assert.NotNil(t, m)
+				assert.Equal(t, SocketFilename, m.GetSocketFilename())
+			},
 			func(t *testing.T, conf *configurator.Config) {
 				numInterfaces := len(conf.GetVppConfig().GetInterfaces())
 				assert.Greater(t, numInterfaces, 0)

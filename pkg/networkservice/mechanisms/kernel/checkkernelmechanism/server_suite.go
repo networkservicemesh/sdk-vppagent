@@ -54,6 +54,7 @@ func NewServerSuite(
 		ServerSuite: vppagent_mechanism_suites.NewServerSuite(
 			serverFactory(fileNameFromInodeNumberFunc),
 			kernel.MECHANISM,
+			func(t *testing.T, mechanism *networkservice.Mechanism) {},
 			vppCheck,
 			request,
 			connClose,
