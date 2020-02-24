@@ -24,7 +24,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
-	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/common/mechanisms/checkmechanism"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
@@ -40,6 +39,7 @@ import (
 //                  connClose - Connection to be used for testing Close(...)
 func NewServerSuite(
 	serverUnderTest networkservice.NetworkServiceServer,
+	mechanismType string,
 	vppCheckOnReturn func(*testing.T, *configurator.Config),
 	request *networkservice.NetworkServiceRequest,
 	connClose *networkservice.Connection,
@@ -47,7 +47,7 @@ func NewServerSuite(
 	return checkmechanism.NewServerSuite(
 		serverUnderTest,
 		vppagent.WithConfig,
-		kernel.MECHANISM,
+		mechanismType,
 		func(t *testing.T, ctx context.Context) {
 			conf := vppagent.Config(ctx)
 			require.NotNil(t, conf)

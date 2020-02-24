@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/ligato/vpp-agent/api/configurator"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
@@ -52,6 +53,7 @@ func NewServerSuite(
 	return &ServerSuite{
 		ServerSuite: vppagent_mechanism_suites.NewServerSuite(
 			serverFactory(fileNameFromInodeNumberFunc),
+			kernel.MECHANISM,
 			vppCheck,
 			request,
 			connClose,
