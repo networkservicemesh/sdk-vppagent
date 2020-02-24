@@ -29,26 +29,29 @@ import (
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
-	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/netnsinode"
 )
 
-func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection, name string) error {
+func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection, name string, fileNameFromInodeNumberFunc func(string) (string, error)) error {
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		conf := vppagent.Config(ctx)
-		filepath, err := netnsinode.LinuxNetNSFileName(mechanism.GetParameters()[common.NetNSInodeKey])
+		filepath, err := fileNameFromInodeNumberFunc(mechanism.GetParameters()[common.NetNSInodeKey])
 		if err != nil {
 			return err
 		}
 		logrus.Info("Did Not Find /dev/vhost-net - using veth pairs")
+		linuxName := name
+		if len(linuxName) > kernel.LinuxIfMaxLength {
+			linuxName = linuxName[:kernel.LinuxIfMaxLength]
+		}
 		conf.GetLinuxConfig().Interfaces = append(conf.GetLinuxConfig().Interfaces,
 			&linuxinterfaces.Interface{
-				Name:       name + "-veth",
+				Name:       name,
 				Type:       linuxinterfaces.Interface_VETH,
 				Enabled:    true,
-				HostIfName: name + "-veth",
+				HostIfName: linuxName,
 				Link: &linuxinterfaces.Interface_Veth{
 					Veth: &linuxinterfaces.VethLink{
-						PeerIfName: name,
+						PeerIfName: mechanism.GetInterfaceName(conn),
 					},
 				},
 			},
@@ -56,14 +59,14 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 				Name:       name,
 				Type:       linuxinterfaces.Interface_VETH,
 				Enabled:    true,
-				HostIfName: mechanism.GetParameters()[common.InterfaceNameKey],
+				HostIfName: mechanism.GetInterfaceName(conn),
 				Namespace: &linuxnamespace.NetNamespace{
 					Type:      linuxnamespace.NetNamespace_FD,
 					Reference: filepath,
 				},
 				Link: &linuxinterfaces.Interface_Veth{
 					Veth: &linuxinterfaces.VethLink{
-						PeerIfName: name + "-veth",
+						PeerIfName: linuxName,
 					},
 				},
 			})
@@ -73,7 +76,7 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 			Enabled: true,
 			Link: &vppinterfaces.Interface_Afpacket{
 				Afpacket: &vppinterfaces.AfpacketLink{
-					HostIfName: name + "-veth",
+					HostIfName: linuxName,
 				},
 			},
 		})

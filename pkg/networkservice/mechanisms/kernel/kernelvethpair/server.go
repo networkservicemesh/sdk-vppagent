@@ -22,33 +22,40 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/pkg/errors"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
+
+	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/netnsinode"
 )
 
-type kernelVethPairServer struct{}
+type kernelVethPairServer struct {
+	fileNameFromInodeNumberFunc func(string) (string, error)
+}
 
 // NewServer provides NetworkServiceServer chain elements that support the kernel Mechanism using veth pairs
 func NewServer() networkservice.NetworkServiceServer {
-	return &kernelVethPairServer{}
+	return &kernelVethPairServer{fileNameFromInodeNumberFunc: netnsinode.LinuxNetNSFileName}
+}
+
+// NewTestableServer - same as NewServer, but allows provision of fileNameFromInodeNumberFunc to allow for testing
+func NewTestableServer(fileNameFromInodeNumberFunc func(string) (string, error)) networkservice.NetworkServiceServer {
+	server := NewServer()
+	rv := server.(*kernelVethPairServer)
+	rv.fileNameFromInodeNumberFunc = fileNameFromInodeNumberFunc
+	return rv
 }
 
 func (k *kernelVethPairServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
-	conn, err := next.Server(ctx).Request(ctx, request)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	if err := appendInterfaceConfig(ctx, conn, fmt.Sprintf("server-%s", conn.GetId())); err != nil {
+	if err := appendInterfaceConfig(ctx, request.GetConnection(), fmt.Sprintf("server-%s", request.GetConnection().GetId()), k.fileNameFromInodeNumberFunc); err != nil {
 		return nil, err
 	}
-	return conn, nil
+	return next.Server(ctx).Request(ctx, request)
 }
 
 func (k *kernelVethPairServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
-	if err := appendInterfaceConfig(ctx, conn, fmt.Sprintf("server-%s", conn.GetId())); err != nil {
+	if err := appendInterfaceConfig(ctx, conn, fmt.Sprintf("server-%s", conn.GetId()), k.fileNameFromInodeNumberFunc); err != nil {
 		return nil, err
 	}
 	return next.Server(ctx).Close(ctx, conn)
