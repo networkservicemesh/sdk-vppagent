@@ -61,8 +61,12 @@ func (m *memifClient) Request(ctx context.Context, request *networkservice.Netwo
 }
 
 func (m *memifClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
+	rv, err := next.Client(ctx).Close(ctx, conn, opts...)
+	if err != nil {
+		return nil, err
+	}
 	m.appendInterfaceConfig(ctx, conn)
-	return next.Client(ctx).Close(ctx, conn, opts...)
+	return rv, err
 }
 
 func (m *memifClient) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) {

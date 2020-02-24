@@ -43,7 +43,7 @@ func NewServer(baseDir string) networkservice.NetworkServiceServer {
 
 func (m *memifServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	m.appendInterfaceConfig(ctx, request.GetConnection())
-	return request.GetConnection(), nil
+	return next.Server(ctx).Request(ctx, request)
 }
 
 func (m *memifServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {

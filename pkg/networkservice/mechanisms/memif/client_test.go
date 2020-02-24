@@ -17,109 +17,49 @@
 package memif_test
 
 import (
-	"context"
 	"io/ioutil"
 	"path"
 	"testing"
 
-	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/ligato/vpp-agent/api/configurator"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
-	"github.com/networkservicemesh/sdk/pkg/networkservice/core/chain"
-	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-	"google.golang.org/grpc"
+	"github.com/stretchr/testify/suite"
 
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/checkvppagentmechanism"
 	memif_mechanism "github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/memif"
-
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
-type beforeClient struct {
-	*testing.T
-	baseDir string
-}
-
-func NewBeforeClient(t *testing.T, baseDir string) networkservice.NetworkServiceClient {
-	return &beforeClient{
-		T:       t,
-		baseDir: baseDir,
-	}
-}
-
-func (b beforeClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
-	conn, err := next.Client(ctx).Request(ctx, request)
-	assert.NotNil(b, conn)
-	assert.Nil(b, err)
-	mechanism := memif.ToMechanism(conn.GetMechanism())
-	assert.NotNil(b, mechanism)
-	conf := vppagent.Config(ctx)
-	assert.Greater(b, len(conf.GetVppConfig().GetInterfaces()), 0)
-	numInterfaces := len(conf.GetVppConfig().GetInterfaces())
-	iface := conf.GetVppConfig().GetInterfaces()[numInterfaces-1].GetMemif()
-	assert.NotNil(b, iface)
-	assert.Equal(b, path.Join(b.baseDir, mechanism.GetSocketFilename()), iface.GetSocketFilename())
-	return conn, err
-}
-
-func (b beforeClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
-	_, err := next.Client(ctx).Close(ctx, conn)
-	assert.Nil(b, err)
-	mechanism := memif.ToMechanism(conn.GetMechanism())
-	assert.NotNil(b, mechanism)
-	conf := vppagent.Config(ctx)
-	assert.Greater(b, len(conf.GetVppConfig().GetInterfaces()), 0)
-	numInterfaces := len(conf.GetVppConfig().GetInterfaces())
-	iface := conf.GetVppConfig().GetInterfaces()[numInterfaces-1].GetMemif()
-	assert.NotNil(b, iface)
-	assert.Equal(b, path.Join(b.baseDir, mechanism.GetSocketFilename()), iface.GetSocketFilename())
-	return &empty.Empty{}, err
-}
-
-type afterClient struct {
-	*testing.T
-}
-
-func NewAfterClient(t *testing.T) networkservice.NetworkServiceClient {
-	return &afterClient{t}
-}
-
-func (a *afterClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
-	var found bool
-	for _, mechanism := range request.GetMechanismPreferences() {
-		if m := memif.ToMechanism(mechanism); m != nil {
-			found = true
-			request.GetConnection().Mechanism = mechanism
-			mechanism.Parameters[memif.SocketFilename] = SocketFilename
-		}
-	}
-	assert.True(a, found, "Did not find memif Mechanism in MechanismPreferences")
-	return next.Client(ctx).Request(ctx, request)
-}
-
-func (a *afterClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
-	return next.Client(ctx).Close(ctx, conn)
-}
-
-// TestMemifClient - tests to make sure that the memif mechanism client does its two jobs:
-//        - Add memif to the Mechanisms preferences before it calls next.Client(ctx).Request(...)
-//        - Add the proper Interface to vppagent.Config() after it gets back the fully completed after calling
-//            next.Client(ctx).Request(...)
 func TestMemifClient(t *testing.T) {
 	logrus.SetOutput(ioutil.Discard)
-	client := chain.NewNetworkServiceClient(
-		vppagent.NewClient(),
-		NewBeforeClient(t, BaseDir),
-		memif_mechanism.NewClient(BaseDir),
-		NewAfterClient(t),
-	)
-	request := &networkservice.NetworkServiceRequest{
-		Connection: &networkservice.Connection{},
+	testRequest := &networkservice.NetworkServiceRequest{
+		Connection: &networkservice.Connection{
+			Mechanism: &networkservice.Mechanism{
+				Cls:  cls.LOCAL,
+				Type: memif.MECHANISM,
+				Parameters: map[string]string{
+					memif.SocketFilename: SocketFilename,
+				},
+			},
+		},
 	}
-	conn, err := client.Request(context.Background(), request)
-	assert.NotNil(t, conn)
-	assert.Nil(t, err)
-	_, err = client.Close(context.Background(), conn)
-	assert.Nil(t, err)
+	suite.Run(t, checkvppagentmechanism.NewClientSuite(
+		memif_mechanism.NewClient(BaseDir),
+		memif.MECHANISM,
+		func(t *testing.T, mechanism *networkservice.Mechanism) {},
+		func(t *testing.T, conf *configurator.Config) {
+			numInterfaces := len(conf.GetVppConfig().GetInterfaces())
+			assert.Greater(t, numInterfaces, 0)
+			iface := conf.GetVppConfig().GetInterfaces()[numInterfaces-1]
+			assert.NotNil(t, iface)
+			ifaceMemif := conf.GetVppConfig().GetInterfaces()[numInterfaces-1].GetMemif()
+			assert.NotNil(t, iface)
+			assert.Equal(t, path.Join(BaseDir, SocketFilename), ifaceMemif.GetSocketFilename())
+		},
+		testRequest,
+		testRequest.GetConnection(),
+	))
 }

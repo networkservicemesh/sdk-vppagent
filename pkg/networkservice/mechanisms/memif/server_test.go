@@ -17,25 +17,21 @@
 package memif_test
 
 import (
-	"context"
 	"io/ioutil"
 	"path"
 	"testing"
 
-	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/ligato/vpp-agent/api/configurator"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/networkservicemesh/sdk/pkg/networkservice/common/mechanisms"
-	"github.com/networkservicemesh/sdk/pkg/networkservice/core/chain"
-	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
-
-	memif_mechanism "github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/memif"
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
+	"github.com/stretchr/testify/suite"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
+
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/checkvppagentmechanism"
+	memif_mechanism "github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/memif"
 )
 
 const (
@@ -43,61 +39,34 @@ const (
 	BaseDir        = "baseDir"
 )
 
-type testServer struct {
-	*testing.T
-	baseDir string
-}
-
-func NewTestServer(t *testing.T, baseDir string) networkservice.NetworkServiceServer {
-	return &testServer{
-		T:       t,
-		baseDir: baseDir,
-	}
-}
-
-func (t *testServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
-	mechanism := memif.ToMechanism(request.GetConnection().GetMechanism())
-	assert.NotNil(t, mechanism)
-	conf := vppagent.Config(ctx)
-	assert.Greater(t, len(conf.GetVppConfig().GetInterfaces()), 0)
-	assert.NotNil(t, conf.GetVppConfig().GetInterfaces()[0].GetMemif())
-	assert.Equal(t, path.Join(t.baseDir, mechanism.GetSocketFilename()), conf.GetVppConfig().GetInterfaces()[0].GetMemif().GetSocketFilename())
-	return next.Server(ctx).Request(ctx, request)
-}
-
-func (t *testServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
-	mechanism := memif.ToMechanism(conn.GetMechanism())
-	assert.NotNil(t, mechanism)
-	conf := vppagent.Config(ctx)
-	assert.Greater(t, len(conf.GetVppConfig().GetInterfaces()), 0)
-	assert.NotNil(t, conf.GetVppConfig().GetInterfaces()[0].GetMemif())
-	assert.Equal(t, path.Join(t.baseDir, mechanism.GetSocketFilename()), conf.GetVppConfig().GetInterfaces()[0].GetMemif().GetSocketFilename())
-	return next.Server(ctx).Close(ctx, conn)
-}
-
-func TestMemifMechanisms(t *testing.T) {
+func TestMemifServer(t *testing.T) {
 	logrus.SetOutput(ioutil.Discard)
-	server := chain.NewNetworkServiceServer(
-		vppagent.NewServer(),
-		mechanisms.NewServer(map[string]networkservice.NetworkServiceServer{
-			memif.MECHANISM: memif_mechanism.NewServer(BaseDir),
-		}),
-		NewTestServer(t, BaseDir),
-	)
-	request := &networkservice.NetworkServiceRequest{
+	testRequest := &networkservice.NetworkServiceRequest{
 		Connection: &networkservice.Connection{
 			Mechanism: &networkservice.Mechanism{
-				Type: memif.MECHANISM,
 				Cls:  cls.LOCAL,
+				Type: memif.MECHANISM,
 				Parameters: map[string]string{
 					memif.SocketFilename: SocketFilename,
 				},
 			},
 		},
 	}
-	conn, err := server.Request(context.Background(), request)
-	assert.Nil(t, err)
-	assert.NotNil(t, conn)
-	_, err = server.Close(context.Background(), conn)
-	assert.Nil(t, err)
+	suite.Run(t,
+		checkvppagentmechanism.NewServerSuite(
+			memif_mechanism.NewServer(BaseDir),
+			memif.MECHANISM,
+			func(t *testing.T, conf *configurator.Config) {
+				numInterfaces := len(conf.GetVppConfig().GetInterfaces())
+				assert.Greater(t, numInterfaces, 0)
+				iface := conf.GetVppConfig().GetInterfaces()[numInterfaces-1]
+				assert.NotNil(t, iface)
+				ifaceMemif := conf.GetVppConfig().GetInterfaces()[numInterfaces-1].GetMemif()
+				assert.NotNil(t, iface)
+				assert.Equal(t, path.Join(BaseDir, SocketFilename), ifaceMemif.GetSocketFilename())
+			},
+			testRequest,
+			testRequest.GetConnection(),
+		),
+	)
 }
