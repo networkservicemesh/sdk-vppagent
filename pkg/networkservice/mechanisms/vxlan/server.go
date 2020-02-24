@@ -18,6 +18,7 @@ package vxlan
 
 import (
 	"context"
+	"net"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/ligato/vpp-agent/api/models/vpp"
@@ -31,11 +32,13 @@ import (
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
-type vxlanServer struct{}
+type vxlanServer struct {
+	dstIP net.IP
+}
 
 // NewServer provides a NetworkServiceServer chain elements that support the vxlan Mechanism
-func NewServer() networkservice.NetworkServiceServer {
-	return &vxlanServer{}
+func NewServer(dstIP net.IP) networkservice.NetworkServiceServer {
+	return &vxlanServer{dstIP: dstIP}
 }
 
 func (v *vxlanServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
@@ -55,6 +58,7 @@ func (v *vxlanServer) Close(ctx context.Context, conn *networkservice.Connection
 func (v *vxlanServer) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) error {
 	conf := vppagent.Config(ctx)
 	if mechanism := vxlan.ToMechanism(conn.GetMechanism()); mechanism != nil {
+		conn.GetMechanism().GetParameters()[vxlan.DstIP] = v.dstIP.String()
 		// TODO do VNI selection here
 		vni, err := mechanism.VNI()
 		if err != nil {

@@ -18,6 +18,7 @@
 package xconnectns
 
 import (
+	"net"
 	"net/url"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/directmemif"
@@ -48,8 +49,9 @@ type xconnectNSServer struct {
 //             name - name of the Forwarder
 //             vppagentCC - *grpc.ClientConn of the vppagent - TODO - switch to grpc.ClientConnInterface once vppagent accepts it
 //             baseDir - baseDir for sockets
+//             tunnelIP - IP we can use for originating and terminating tunnels
 //             u - *url.URL for the talking to the NSMgr
-func NewServer(name string, vppagentCC *grpc.ClientConn, baseDir string, u *url.URL) endpoint.Endpoint {
+func NewServer(name string, vppagentCC *grpc.ClientConn, baseDir string, tunnelIP net.IP, u *url.URL) endpoint.Endpoint {
 	rv := xconnectNSServer{}
 	rv.Endpoint = endpoint.NewServer(
 		name,
@@ -59,7 +61,7 @@ func NewServer(name string, vppagentCC *grpc.ClientConn, baseDir string, u *url.
 		// Preference ordered list of mechanisms we support for incoming connections
 		memif.NewServer(baseDir),
 		kernel.NewServer(),
-		vxlan.NewServer(),
+		vxlan.NewServer(tunnelIP),
 		// Statically set the url we use to the unix file socket for the NSMgr
 		clienturl.NewServer(u),
 		connect.NewServer(client.NewClientFactory(
@@ -69,7 +71,7 @@ func NewServer(name string, vppagentCC *grpc.ClientConn, baseDir string, u *url.
 			// Preference ordered list of mechanisms we support for outgoing connections
 			memif.NewClient(baseDir),
 			kernel.NewClient(),
-			vxlan.NewClient(),
+			vxlan.NewClient(tunnelIP),
 			// l2 cross connect (xconnect) between incoming and outgoing connections
 			// TODO - properly support l3xconnect for IP payload
 			l2xconnect.NewClient()),

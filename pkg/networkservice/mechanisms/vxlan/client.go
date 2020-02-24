@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Cisco Systems, Inc.
+// Copyright (c) 2020 Cisco Systems, Inm.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -19,12 +19,15 @@ package vxlan
 
 import (
 	"context"
+	"net"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/ligato/vpp-agent/api/models/vpp"
 	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
@@ -33,25 +36,45 @@ import (
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
-type vxlanClient struct{}
+type vxlanClient struct {
+	srcIP net.IP
+}
 
 // NewClient provides a NetworkServiceClient chain elements that support the vxlan Mechanism
-func NewClient() networkservice.NetworkServiceClient {
-	return &vxlanClient{}
+func NewClient(srcIP net.IP) networkservice.NetworkServiceClient {
+	return &vxlanClient{
+		srcIP: srcIP,
+	}
 }
 
 func (v *vxlanClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
-	if err := v.appendInterfaceConfig(ctx, request.GetConnection()); err != nil {
-		return nil, err
+	preferredMechanism := &networkservice.Mechanism{
+		Cls:  cls.REMOTE,
+		Type: vxlan.MECHANISM,
+		Parameters: map[string]string{
+			vxlan.SrcIP: v.srcIP.String(),
+		},
 	}
-	return next.Client(ctx).Request(ctx, request, opts...)
+	request.MechanismPreferences = append(request.MechanismPreferences, preferredMechanism)
+	rv, err := next.Client(ctx).Request(ctx, request, opts...)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	if configErr := v.appendInterfaceConfig(ctx, request.GetConnection()); configErr != nil {
+		return nil, configErr
+	}
+	return rv, err
 }
 
 func (v *vxlanClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
-	if err := v.appendInterfaceConfig(ctx, conn); err != nil {
-		return nil, err
+	rv, err := next.Client(ctx).Close(ctx, conn, opts...)
+	if err != nil {
+		return nil, errors.WithStack(err)
 	}
-	return next.Client(ctx).Close(ctx, conn, opts...)
+	if configErr := v.appendInterfaceConfig(ctx, conn); configErr != nil {
+		return nil, configErr
+	}
+	return rv, err
 }
 
 func (v *vxlanClient) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) error {
