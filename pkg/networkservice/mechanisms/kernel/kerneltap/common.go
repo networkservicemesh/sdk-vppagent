@@ -28,20 +28,18 @@ import (
 	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
-	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/common"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
-	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/netnsinode"
 )
 
-func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection, name string) error {
+func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection, name string, fileNameFromInodeNumberFunc func(string) (string, error)) error {
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		conf := vppagent.Config(ctx)
 		// We append an Interfaces.  Interfaces creates the vpp side of an interface.
 		//   In this case, a Tapv2 interface that has one side in vpp, and the other
 		//   as a Linux kernel interface
-		conf.GetVppConfig().Interfaces = append(conf.GetVppConfig().Interfaces, &vppinterfaces.Interface{
+		conf.GetVppConfig().Interfaces = append(conf.GetVppConfig().GetInterfaces(), &vppinterfaces.Interface{
 			Name:    name,
 			Type:    vppinterfaces.Interface_TAP,
 			Enabled: true,
@@ -51,7 +49,7 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 				},
 			},
 		})
-		filepath, err := netnsinode.LinuxNetNSFileName(mechanism.GetParameters()[common.NetNSInodeKey])
+		filepath, err := fileNameFromInodeNumberFunc(mechanism.GetNetNSInode())
 		if err != nil {
 			return err
 		}
@@ -60,11 +58,10 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 		// Important details:
 		//    - LinuxInterfaces.HostIfName - must be no longer than 15 chars (linux limitation)
 		conf.GetLinuxConfig().Interfaces = append(conf.GetLinuxConfig().Interfaces, &linux.Interface{
-			Name:    name,
-			Type:    linuxinterfaces.Interface_TAP_TO_VPP,
-			Enabled: true,
-			// TODO - fix this to have a proper getter in the mechanisms/kernel package and use it here
-			HostIfName: mechanism.GetParameters()[common.InterfaceNameKey],
+			Name:       name,
+			Type:       linuxinterfaces.Interface_TAP_TO_VPP,
+			Enabled:    true,
+			HostIfName: mechanism.GetInterfaceName(conn),
 			Namespace: &linuxnamespace.NetNamespace{
 				Type:      linuxnamespace.NetNamespace_FD,
 				Reference: filepath,
