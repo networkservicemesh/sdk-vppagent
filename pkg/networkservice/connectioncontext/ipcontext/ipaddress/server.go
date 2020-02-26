@@ -20,7 +20,6 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
-
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
@@ -58,18 +57,18 @@ func NewServer() networkservice.NetworkServiceServer {
 
 func (s *setVppIPServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	conf := vppagent.Config(ctx)
-	conn, err := next.Server(ctx).Request(ctx, request)
-	if err != nil {
-		return nil, err
+	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 {
+		dstIP := request.GetConnection().GetContext().GetIpContext().GetDstIpAddr()
+		conf.GetVppConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
 	}
-	index := len(conf.GetVppConfig().GetInterfaces()) - 1
-	conf.GetVppConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetDstIpAddr()}
-	return conn, nil
+	return next.Server(ctx).Request(ctx, request)
 }
 
 func (s *setVppIPServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	conf := vppagent.Config(ctx)
-	index := len(conf.GetVppConfig().GetInterfaces()) - 1
-	conf.GetVppConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetDstIpAddr()}
+	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 {
+		dstIP := conn.GetContext().GetIpContext().GetDstIpAddr()
+		conf.GetVppConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
+	}
 	return next.Server(ctx).Close(ctx, conn)
 }

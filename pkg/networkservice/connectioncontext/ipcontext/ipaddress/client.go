@@ -59,19 +59,22 @@ func NewClient() networkservice.NetworkServiceClient {
 }
 
 func (s *setVppIPClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
-	conf := vppagent.Config(ctx)
 	conn, err := next.Client(ctx).Request(ctx, request, opts...)
 	if err != nil {
 		return nil, err
 	}
-	index := len(conf.GetVppConfig().GetInterfaces()) - 1
-	conf.GetVppConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
+	conf := vppagent.Config(ctx)
+	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 {
+		conf.GetVppConfig().GetInterfaces()[index].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
+	}
 	return conn, nil
 }
 
 func (s *setVppIPClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
+	e, err := next.Client(ctx).Close(ctx, conn, opts...)
 	conf := vppagent.Config(ctx)
-	index := len(conf.GetVppConfig().GetInterfaces()) - 1
-	conf.GetVppConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
-	return next.Client(ctx).Close(ctx, conn, opts...)
+	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 {
+		conf.GetVppConfig().GetInterfaces()[index].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
+	}
+	return e, err
 }
