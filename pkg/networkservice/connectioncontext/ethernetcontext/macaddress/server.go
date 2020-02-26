@@ -20,7 +20,6 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
-
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
@@ -62,13 +61,16 @@ func (s *setMacVppServer) Request(ctx context.Context, request *networkservice.N
 	if err != nil {
 		return nil, err
 	}
-	index := len(conf.GetVppConfig().GetInterfaces()) - 1
-	conf.GetVppConfig().GetInterfaces()[index+1].PhysAddress = conn.GetContext().GetEthernetContext().GetDstMac()
+	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 {
+		conf.GetVppConfig().GetInterfaces()[index].PhysAddress = conn.GetContext().GetEthernetContext().GetDstMac()
+	}
 	return conn, nil
 }
 
 func (s *setMacVppServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	conf := vppagent.Config(ctx)
-	conf.GetVppConfig().GetInterfaces()[len(conf.GetVppConfig().GetInterfaces())-1].PhysAddress = conn.GetContext().GetEthernetContext().GetDstMac()
+	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 {
+		conf.GetVppConfig().GetInterfaces()[index].PhysAddress = conn.GetContext().GetEthernetContext().GetDstMac()
+	}
 	return next.Client(ctx).Close(ctx, conn)
 }

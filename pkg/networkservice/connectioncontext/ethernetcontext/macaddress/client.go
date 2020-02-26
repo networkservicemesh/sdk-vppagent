@@ -59,18 +59,22 @@ func NewClient() networkservice.NetworkServiceClient {
 }
 
 func (s *setMacVppClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
-	conf := vppagent.Config(ctx)
 	conn, err := next.Client(ctx).Request(ctx, request, opts...)
 	if err != nil {
 		return nil, err
 	}
-	index := len(conf.GetVppConfig().GetInterfaces()) - 1
-	conf.GetVppConfig().GetInterfaces()[index+1].PhysAddress = conn.GetContext().GetEthernetContext().GetSrcMac()
+	conf := vppagent.Config(ctx)
+	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 {
+		conf.GetVppConfig().GetInterfaces()[index].PhysAddress = conn.GetContext().GetEthernetContext().GetSrcMac()
+	}
 	return conn, nil
 }
 
 func (s *setMacVppClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
+	e, err := next.Client(ctx).Close(ctx, conn, opts...)
 	conf := vppagent.Config(ctx)
-	conf.GetVppConfig().GetInterfaces()[len(conf.GetVppConfig().GetInterfaces())-1].PhysAddress = conn.GetContext().GetEthernetContext().GetSrcMac()
-	return next.Client(ctx).Close(ctx, conn, opts...)
+	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 {
+		conf.GetVppConfig().GetInterfaces()[index].PhysAddress = conn.GetContext().GetEthernetContext().GetSrcMac()
+	}
+	return e, err
 }
