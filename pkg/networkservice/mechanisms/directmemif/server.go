@@ -50,24 +50,17 @@ func NewServerWithNetwork(net string) networkservice.NetworkServiceServer {
 }
 
 func (d *directMemifServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
-	conn, err := next.Server(ctx).Request(ctx, request)
-	if err != nil {
-		return conn, err
-	}
 	c := vppagent.Config(ctx)
 	l := len(c.GetVppConfig().GetInterfaces())
 	if l < 2 {
-		return conn, err
+		return next.Server(ctx).Request(ctx, request)
 	}
 	client := c.GetVppConfig().GetInterfaces()[l-2]
 	endpoint := c.GetVppConfig().GetInterfaces()[l-1]
 	if client.GetMemif() == nil || endpoint.GetMemif() == nil {
-		return conn, err
+		return next.Server(ctx).Request(ctx, request)
 	}
 	c.GetVppConfig().Interfaces = c.GetVppConfig().GetInterfaces()[:l-2]
-	if err != nil {
-		return nil, err
-	}
 	p, err := proxy.New(client.GetMemif().GetSocketFilename(), endpoint.GetMemif().GetSocketFilename(), d.net, proxy.StopListenerAdapter(func() {
 		d.executor.AsyncExec(func() {
 			delete(d.proxies, request.Connection.Id)
@@ -77,37 +70,33 @@ func (d *directMemifServer) Request(ctx context.Context, request *networkservice
 		return nil, err
 	}
 	d.executor.AsyncExec(func() {
-		prev := d.proxies[conn.Id]
+		prev := d.proxies[request.GetConnection().GetId()]
 		if prev != nil {
 			_ = prev.Stop()
 			d.executor.AsyncExec(func() {
-				d.proxies[conn.Id] = p
+				d.proxies[request.GetConnection().GetId()] = p
 			})
 		} else {
-			d.proxies[conn.Id] = p
+			d.proxies[request.GetConnection().GetId()] = p
 		}
 	})
 	err = p.Start()
 	if err != nil {
 		return nil, err
 	}
-	return conn, err
+	return next.Server(ctx).Request(ctx, request)
 }
 
 func (d *directMemifServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	c := vppagent.Config(ctx)
-	r, err := next.Server(ctx).Close(ctx, conn)
-	if err != nil {
-		return r, err
-	}
 	l := len(c.GetVppConfig().GetInterfaces())
 	if l < 2 {
-		return r, err
+		return next.Server(ctx).Close(ctx, conn)
 	}
 	client := c.GetVppConfig().GetInterfaces()[l-2]
 	endpoint := c.GetVppConfig().GetInterfaces()[l-1]
 	if client.GetMemif() == nil || endpoint.GetMemif() == nil {
-		return r, err
+		return next.Server(ctx).Close(ctx, conn)
 	}
 	d.executor.AsyncExec(func() {
 		p := d.proxies[conn.Id]
@@ -116,5 +105,5 @@ func (d *directMemifServer) Close(ctx context.Context, conn *networkservice.Conn
 			delete(d.proxies, conn.Id)
 		}
 	})
-	return r, err
+	return next.Server(ctx).Close(ctx, conn)
 }
