@@ -60,22 +60,27 @@ func NewClient() networkservice.NetworkServiceClient {
 }
 
 func (s *setIPKernelClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
-	conf := vppagent.Config(ctx)
 	conn, err := next.Client(ctx).Request(ctx, request, opts...)
 	if err != nil {
 		return nil, err
 	}
-	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil {
+	conf := vppagent.Config(ctx)
+	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
 		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
-		conf.GetLinuxConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
+		conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
 	}
 	return conn, nil
 }
 
 func (s *setIPKernelClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
+	e, err := next.Client(ctx).Close(ctx, conn, opts...)
+	if err != nil {
+		return nil, err
+	}
 	conf := vppagent.Config(ctx)
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
-		conf.GetLinuxConfig().GetInterfaces()[len(conf.GetLinuxConfig().GetInterfaces())-1].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
+		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
+		conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
 	}
-	return next.Client(ctx).Close(ctx, conn, opts...)
+	return e, err
 }

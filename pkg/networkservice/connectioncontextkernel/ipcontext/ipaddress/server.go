@@ -21,7 +21,6 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
-
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 
@@ -61,21 +60,20 @@ func NewServer() networkservice.NetworkServiceServer {
 
 func (s *setIPKernelServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	conf := vppagent.Config(ctx)
-	conn, err := next.Client(ctx).Request(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil {
+	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
 		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
-		conf.GetLinuxConfig().GetInterfaces()[index+1].IpAddresses = []string{conn.GetContext().GetIpContext().GetDstIpAddr()}
+		dstIP := request.GetConnection().GetContext().GetIpContext().GetDstIpAddr()
+		conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
 	}
-	return conn, nil
+	return next.Client(ctx).Request(ctx, request)
 }
 
 func (s *setIPKernelServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	conf := vppagent.Config(ctx)
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
-		conf.GetLinuxConfig().GetInterfaces()[len(conf.GetLinuxConfig().GetInterfaces())-1].IpAddresses = []string{conn.GetContext().GetIpContext().GetDstIpAddr()}
+		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
+		dstIP := conn.GetContext().GetIpContext().GetDstIpAddr()
+		conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
 	}
 	return next.Client(ctx).Close(ctx, conn)
 }
