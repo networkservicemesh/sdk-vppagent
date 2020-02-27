@@ -20,11 +20,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ligato/vpp-agent/api/configurator"
-	linuxinterfaces "github.com/ligato/vpp-agent/api/models/linux/interfaces"
-	linuxnamespace "github.com/ligato/vpp-agent/api/models/linux/namespace"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
+	linuxinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/linux/interfaces"
+	linuxnamespace "go.ligato.io/vpp-agent/v3/proto/ligato/linux/namespace"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
@@ -76,6 +76,6 @@ func checkVppAgentConfig(prefix string, request *networkservice.NetworkServiceRe
 		assert.Equal(t, fmt.Sprintf("%s-%s", prefix, request.GetConnection().GetId()), vppInterface.GetName())
 		afpacketInterface := vppInterface.GetAfpacket()
 		assert.NotNil(t, afpacketInterface)
-		assert.Equal(t, afpacketInterface.GetHostIfName(), linuxInterfaces[0].GetHostIfName())
+		assert.Equal(t, afpacketInterface.GetLinuxInterface(), linuxInterfaces[0].GetHostIfName())
 	}
 }

@@ -22,10 +22,10 @@ import (
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/trace"
 
-	"github.com/ligato/vpp-agent/api/models/linux"
-	linuxinterfaces "github.com/ligato/vpp-agent/api/models/linux/interfaces"
-	linuxnamespace "github.com/ligato/vpp-agent/api/models/linux/namespace"
-	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/linux"
+	linuxinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/linux/interfaces"
+	linuxnamespace "go.ligato.io/vpp-agent/v3/proto/ligato/linux/namespace"
+	vppinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/interfaces"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"

@@ -26,10 +26,10 @@ import (
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 
-	"github.com/ligato/vpp-agent/api/configurator"
-	"github.com/ligato/vpp-agent/api/models/linux"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 	"github.com/stretchr/testify/assert"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/linux"
 	"google.golang.org/grpc"
 )
 
@@ -101,7 +101,7 @@ func (t *testDumpConfiguratorClient) Dump(ctx context.Context, in *configurator.
 	}, nil
 }
 
-func (t *testDumpConfiguratorClient) Notify(ctx context.Context, in *configurator.NotificationRequest, opts ...grpc.CallOption) (configurator.Configurator_NotifyClient, error) {
+func (t *testDumpConfiguratorClient) Notify(ctx context.Context, in *configurator.NotifyRequest, opts ...grpc.CallOption) (configurator.ConfiguratorService_NotifyClient, error) {
 	panic("implement me")
 }
 

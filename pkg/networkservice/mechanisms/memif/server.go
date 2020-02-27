@@ -22,10 +22,10 @@ import (
 	"path"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/ligato/vpp-agent/api/models/vpp"
-	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/vpp"
+	vppinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/interfaces"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 

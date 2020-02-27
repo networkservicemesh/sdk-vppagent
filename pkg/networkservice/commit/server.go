@@ -20,8 +20,8 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/ligato/vpp-agent/api/configurator"
 	"github.com/pkg/errors"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
 	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
@@ -33,7 +33,7 @@ import (
 
 type commitServer struct {
 	vppagentCC     *grpc.ClientConn
-	vppagentClient configurator.ConfiguratorClient
+	vppagentClient configurator.ConfiguratorServiceClient
 }
 
 // NewServer creates a NetworkServiceServer chain elements for committing the vppagent *configurator.Config
@@ -41,7 +41,7 @@ type commitServer struct {
 func NewServer(vppagentCC *grpc.ClientConn) networkservice.NetworkServiceServer {
 	return &commitServer{
 		vppagentCC:     vppagentCC,
-		vppagentClient: configurator.NewConfiguratorClient(vppagentCC),
+		vppagentClient: configurator.NewConfiguratorServiceClient(vppagentCC),
 	}
 }
 

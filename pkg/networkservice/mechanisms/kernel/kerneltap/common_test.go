@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ligato/vpp-agent/api/configurator"
-	linuxnamespace "github.com/ligato/vpp-agent/api/models/linux/namespace"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
+	linuxnamespace "go.ligato.io/vpp-agent/v3/proto/ligato/linux/namespace"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"

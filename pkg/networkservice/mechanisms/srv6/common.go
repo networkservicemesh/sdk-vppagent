@@ -20,12 +20,12 @@ import (
 	"context"
 	"math"
 
-	"github.com/ligato/vpp-agent/api/models/vpp"
-	vpp_l3 "github.com/ligato/vpp-agent/api/models/vpp/l3"
-	vpp_srv6 "github.com/ligato/vpp-agent/api/models/vpp/srv6"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/srv6"
 	"github.com/pkg/errors"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/vpp"
+	vpp_l3 "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/l3"
+	vpp_srv6 "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/srv6"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
@@ -69,8 +69,8 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 	vppConfig.Srv6Localsids = []*vpp_srv6.LocalSID{
 		{
 			Sid: srcLocalSID,
-			EndFunction: &vpp_srv6.LocalSID_EndFunction_DX2{
-				EndFunction_DX2: &vpp_srv6.LocalSID_EndDX2{
+			EndFunction: &vpp_srv6.LocalSID_EndFunctionDx2{
+				EndFunctionDx2: &vpp_srv6.LocalSID_EndDX2{
 					VlanTag:           math.MaxUint32,
 					OutgoingInterface: localIfaceName,
 				},

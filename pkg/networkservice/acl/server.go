@@ -23,9 +23,9 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/ligato/vpp-agent/api/configurator"
-	vppacl "github.com/ligato/vpp-agent/api/models/vpp/acl"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
+	vppacl "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/acl"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 

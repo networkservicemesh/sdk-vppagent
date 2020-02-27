@@ -19,10 +19,10 @@ package kernelvethpair
 import (
 	"context"
 
-	linuxinterfaces "github.com/ligato/vpp-agent/api/models/linux/interfaces"
-	linuxnamespace "github.com/ligato/vpp-agent/api/models/linux/namespace"
-	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
 	"github.com/sirupsen/logrus"
+	linuxinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/linux/interfaces"
+	linuxnamespace "go.ligato.io/vpp-agent/v3/proto/ligato/linux/namespace"
+	vppinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/interfaces"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/common"
@@ -76,7 +76,7 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 			Enabled: true,
 			Link: &vppinterfaces.Interface_Afpacket{
 				Afpacket: &vppinterfaces.AfpacketLink{
-					HostIfName: linuxName,
+					LinuxInterface: linuxName,
 				},
 			},
 		})

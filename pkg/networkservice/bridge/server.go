@@ -21,9 +21,9 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/ligato/vpp-agent/api/configurator"
-	l2 "github.com/ligato/vpp-agent/api/models/vpp/l2"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
+	l2 "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/l2"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 

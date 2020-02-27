@@ -22,9 +22,9 @@ import (
 	"net"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/ligato/vpp-agent/api/models/vpp"
-	vppinterfaces "github.com/ligato/vpp-agent/api/models/vpp/interfaces"
 	"github.com/pkg/errors"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/vpp"
+	vppinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/interfaces"
 	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"

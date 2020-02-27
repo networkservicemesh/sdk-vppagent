@@ -21,26 +21,26 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/ligato/vpp-agent/api/configurator"
-	"github.com/ligato/vpp-agent/api/models/linux"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 	"github.com/sirupsen/logrus"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/linux"
 	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
 // NewServer creates a NetworkServiceServer chain element to set the EthernetContext for Kernel connection request
-func NewServer(сс *grpc.ClientConn) networkservice.NetworkServiceServer {
+func NewServer(сс grpc.ClientConnInterface) networkservice.NetworkServiceServer {
 	return &getMacKernelServer{
-		client: configurator.NewConfiguratorClient(сс),
+		client: configurator.NewConfiguratorServiceClient(сс),
 	}
 }
 
 type getMacKernelServer struct {
-	client configurator.ConfiguratorClient
+	client configurator.ConfiguratorServiceClient
 }
 
 func (s *getMacKernelServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {

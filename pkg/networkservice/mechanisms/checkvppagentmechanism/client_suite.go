@@ -21,9 +21,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/ligato/vpp-agent/api/configurator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/common/mechanisms/checkmechanism"

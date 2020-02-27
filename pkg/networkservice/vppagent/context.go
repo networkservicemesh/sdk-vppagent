@@ -20,10 +20,10 @@ package vppagent
 import (
 	"context"
 
-	"github.com/ligato/vpp-agent/api/configurator"
-	"github.com/ligato/vpp-agent/api/models/linux"
-	"github.com/ligato/vpp-agent/api/models/netalloc"
-	"github.com/ligato/vpp-agent/api/models/vpp"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/linux"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/netalloc"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/vpp"
 )
 
 type contextKeyType string

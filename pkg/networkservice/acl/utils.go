@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"strings"
 
-	vppacl "github.com/ligato/vpp-agent/api/models/vpp/acl"
 	"github.com/pkg/errors"
+	vppacl "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/acl"
 )
 
 const (

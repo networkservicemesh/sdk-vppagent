@@ -22,9 +22,9 @@ import (
 	"net"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/ligato/vpp-agent/api/models/linux"
-	linuxl3 "github.com/ligato/vpp-agent/api/models/linux/l3"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/linux"
+	linuxl3 "go.ligato.io/vpp-agent/v3/proto/ligato/linux/l3"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
