@@ -47,11 +47,11 @@ type xconnectNSServer struct {
 
 // NewServer - returns a new vppagent based Endpoint implementing the XConnect Network Service for use as a Forwarder
 //             name - name of the Forwarder
-//             vppagentCC - *grpc.ClientConn of the vppagent - TODO - switch to grpc.ClientConnInterface once vppagent accepts it
+//             vppagentCC - grpc.ClientConnInterface of the vppagent
 //             baseDir - baseDir for sockets
 //             tunnelIP - IP we can use for originating and terminating tunnels
 //             u - *url.URL for the talking to the NSMgr
-func NewServer(name string, vppagentCC *grpc.ClientConn, baseDir string, tunnelIP net.IP, u *url.URL) endpoint.Endpoint {
+func NewServer(name string, vppagentCC grpc.ClientConnInterface, baseDir string, tunnelIP net.IP, u *url.URL) endpoint.Endpoint {
 	rv := xconnectNSServer{}
 	rv.Endpoint = endpoint.NewServer(
 		name,
