@@ -19,8 +19,10 @@ package vxlan
 import (
 	"context"
 	"net"
+	"sync"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
 	"go.ligato.io/vpp-agent/v3/proto/ligato/vpp"
 	vppinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/interfaces"
 
@@ -33,15 +35,28 @@ import (
 )
 
 type vxlanServer struct {
-	dstIP net.IP
+	dstIP    net.IP
+	initOnce sync.Once
+	initFunc func(conf *configurator.Config)
 }
 
-// NewServer provides a NetworkServiceServer chain elements that support the vxlan Mechanism
-func NewServer(dstIP net.IP) networkservice.NetworkServiceServer {
-	return &vxlanServer{dstIP: dstIP}
+// NewServer - return a NetworkServiceServer chain elements that support the vxlan Mechanism
+//             dstIP - dstIP to use for vxlan tunnels
+//             initFunc - function to do any one time config so that vxlan tunnels can work
+func NewServer(dstIP net.IP, initFunc func(conf *configurator.Config)) networkservice.NetworkServiceServer {
+	if initFunc == nil {
+		initFunc = EmptyInitFunc
+	}
+	return &vxlanServer{
+		dstIP:    dstIP,
+		initFunc: initFunc,
+	}
 }
 
 func (v *vxlanServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
+	v.initOnce.Do(func() {
+		v.initFunc(vppagent.Config(ctx))
+	})
 	if err := v.appendInterfaceConfig(ctx, request.GetConnection()); err != nil {
 		return nil, err
 	}
@@ -49,6 +64,9 @@ func (v *vxlanServer) Request(ctx context.Context, request *networkservice.Netwo
 }
 
 func (v *vxlanServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
+	v.initOnce.Do(func() {
+		v.initFunc(vppagent.Config(ctx))
+	})
 	if err := v.appendInterfaceConfig(ctx, conn); err != nil {
 		return nil, err
 	}

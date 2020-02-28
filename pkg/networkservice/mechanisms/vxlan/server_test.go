@@ -61,7 +61,7 @@ func TestVxlanServer(t *testing.T) {
 	}
 	vmech := vxlan_mechanism.ToMechanism(testRequest.GetConnection().GetMechanism())
 	suite.Run(t, checkvppagentmechanism.NewServerSuite(
-		vxlan.NewServer(dstIP),
+		vxlan.NewServer(dstIP, vxlan.EmptyInitFunc),
 		vxlan_mechanism.MECHANISM,
 		func(t *testing.T, mechanism *networkservice.Mechanism) {
 			m := vxlan_mechanism.ToMechanism(mechanism)
@@ -90,7 +90,7 @@ func TestVxlanServer(t *testing.T) {
 	t.Run("InvalidVNI", func(t *testing.T) {
 		req := testRequest.Clone()
 		req.GetConnection().GetMechanism().GetParameters()[vxlan_mechanism.VNI] = InvalidVNI
-		serverUnderTest := vxlan.NewServer(dstIP)
+		serverUnderTest := vxlan.NewServer(dstIP, vxlan.EmptyInitFunc)
 		conn, err := serverUnderTest.Request(vppagent.WithConfig(context.Background()), req)
 		assert.Nil(t, conn)
 		assert.NotNil(t, err)
