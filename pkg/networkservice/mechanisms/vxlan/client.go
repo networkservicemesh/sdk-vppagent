@@ -39,24 +39,26 @@ import (
 )
 
 // EmptyInitFunc is a convenience initFunc that does nothing
-func EmptyInitFunc(conf *configurator.Config) {}
+func EmptyInitFunc(conf *configurator.Config) error { return nil }
 
 type vxlanClient struct {
 	srcIP    net.IP
 	initOnce sync.Once
-	initFunc func(conf *configurator.Config)
+	initFunc func(conf *configurator.Config) error
+	err      error
 }
 
 // NewClient - returns a NetworkServiceClient chain elements that support the vxlan Mechanism
 //             srcIp - srcIP to use for vxlan tunnels
 //             initFunc - function to do any one time config so that vxlan tunnels can work
-func NewClient(srcIP net.IP, initFunc func(conf *configurator.Config)) networkservice.NetworkServiceClient {
+func NewClient(srcIP net.IP, initFunc func(conf *configurator.Config) error) networkservice.NetworkServiceClient {
 	if initFunc == nil {
 		initFunc = EmptyInitFunc
 	}
 	return &vxlanClient{
 		srcIP:    srcIP,
 		initFunc: initFunc,
+		err:      errors.New("vxlanClient: vppagent uninitialized"),
 	}
 }
 
@@ -74,8 +76,11 @@ func (v *vxlanClient) Request(ctx context.Context, request *networkservice.Netwo
 		return nil, errors.WithStack(err)
 	}
 	v.initOnce.Do(func() {
-		v.initFunc(vppagent.Config(ctx))
+		v.err = v.initFunc(vppagent.Config(ctx))
 	})
+	if v.err != nil {
+		return nil, v.err
+	}
 	if configErr := v.appendInterfaceConfig(ctx, request.GetConnection()); configErr != nil {
 		return nil, configErr
 	}
@@ -88,8 +93,11 @@ func (v *vxlanClient) Close(ctx context.Context, conn *networkservice.Connection
 		return nil, errors.WithStack(err)
 	}
 	v.initOnce.Do(func() {
-		v.initFunc(vppagent.Config(ctx))
+		v.err = v.initFunc(vppagent.Config(ctx))
 	})
+	if v.err != nil {
+		return nil, v.err
+	}
 	if configErr := v.appendInterfaceConfig(ctx, conn); configErr != nil {
 		return nil, configErr
 	}
