@@ -21,6 +21,7 @@ import (
 	"net"
 	"net/url"
 
+	"github.com/open-policy-agent/opa/rego"
 	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/directmemif"
@@ -49,14 +50,16 @@ type xconnectNSServer struct {
 
 // NewServer - returns a new vppagent based Endpoint implementing the XConnect Network Service for use as a Forwarder
 //             name - name of the Forwarder
+//             authzPolicy - policy for allowing or rejecting requests
 //             vppagentCC - grpc.ClientConnInterface of the vppagent
 //             baseDir - baseDir for sockets
 //             tunnelIP - IP we can use for originating and terminating tunnels
 //             u - *url.URL for the talking to the NSMgr
-func NewServer(name string, vppagentCC grpc.ClientConnInterface, baseDir string, tunnelIP net.IP, u *url.URL, vxlanInitFunc func(conf *configurator.Config) error) endpoint.Endpoint {
+func NewServer(name string, authzPolicy *rego.PreparedEvalQuery, vppagentCC grpc.ClientConnInterface, baseDir string, tunnelIP net.IP, u *url.URL, vxlanInitFunc func(conf *configurator.Config) error) endpoint.Endpoint {
 	rv := xconnectNSServer{}
 	rv.Endpoint = endpoint.NewServer(
 		name,
+		authzPolicy,
 		// Make sure we have a fresh empty config for everyone in the chain to use
 		vppagent.NewServer(),
 		directmemif.NewServer(),
