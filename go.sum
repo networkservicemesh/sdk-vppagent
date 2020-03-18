@@ -171,8 +171,8 @@ github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRW
 github.com/namsral/flag v1.7.4-pre/go.mod h1:OXldTctbM6SWH1K899kPZcf65KxJiD7MsceFUpB5yDo=
 github.com/networkservicemesh/api v0.0.0-20200223155536-6728cf448703 h1:sDFZsZJF9LS9IMfSRDLrwiphvB3chARgpKeJfWtrc6I=
 github.com/networkservicemesh/api v0.0.0-20200223155536-6728cf448703/go.mod h1:6hH0TfujZVin9W/6rWY7JnmNBNRvUrgXhr1aWyKuQKI=
-github.com/networkservicemesh/sdk v0.0.0-20200318121441-8962d5a14377 h1:+ysRvrt4PCujNfdR4ty+Nec6wSsl5QlsFepj8Q55j+I=
-github.com/networkservicemesh/sdk v0.0.0-20200318121441-8962d5a14377/go.mod h1:F0o8QT9xO6afCiG1RrfoaVBUr+z3DjzX9N/Xse6YdrY=
+github.com/networkservicemesh/sdk v0.0.0-20200318143613-326dd4ad87d2 h1:MAHPUEKbG9KnGjnIHYoHkyePplC5fJinXBfbLpzoQVs=
+github.com/networkservicemesh/sdk v0.0.0-20200318143613-326dd4ad87d2/go.mod h1:F0o8QT9xO6afCiG1RrfoaVBUr+z3DjzX9N/Xse6YdrY=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/olekukonko/tablewriter v0.0.1/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=
 github.com/onsi/ginkgo v1.6.0 h1:Ix8l273rp3QzYgXSR+c8d1fTG7UPgYkOSELPhiY/YGw=
