@@ -6,7 +6,7 @@ require (
 	github.com/golang/protobuf v1.3.3
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/networkservicemesh/api v0.0.0-20200223155536-6728cf448703
-	github.com/networkservicemesh/sdk v0.0.0-20200317142014-9ccc496d2431
+	github.com/networkservicemesh/sdk v0.0.0-20200318000958-285b6a43f5b9
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/open-policy-agent/opa v0.16.1
 	github.com/pkg/errors v0.9.1
