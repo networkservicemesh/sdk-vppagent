@@ -54,8 +54,10 @@ type xconnectNSServer struct {
 //             vppagentCC - grpc.ClientConnInterface of the vppagent
 //             baseDir - baseDir for sockets
 //             tunnelIP - IP we can use for originating and terminating tunnels
-//             u - *url.URL for the talking to the NSMgr
-func NewServer(name string, authzPolicy *rego.PreparedEvalQuery, vppagentCC grpc.ClientConnInterface, baseDir string, tunnelIP net.IP, u *url.URL, vxlanInitFunc func(conf *configurator.Config) error) endpoint.Endpoint {
+//             vxlanInitFunc - function to perform initial configuration of vppagent
+//             clientUrl - *url.URL for the talking to the NSMgr
+//             ...clientDialOptions - dialOptions for dialing the NSMgr
+func NewServer(name string, authzPolicy *rego.PreparedEvalQuery, vppagentCC grpc.ClientConnInterface, baseDir string, tunnelIP net.IP, vxlanInitFunc func(conf *configurator.Config) error, clientURL *url.URL, clientDialOptions ...grpc.DialOption) endpoint.Endpoint {
 	rv := xconnectNSServer{}
 	rv.Endpoint = endpoint.NewServer(
 		name,
@@ -68,7 +70,7 @@ func NewServer(name string, authzPolicy *rego.PreparedEvalQuery, vppagentCC grpc
 		kernel.NewServer(),
 		vxlan.NewServer(tunnelIP, vxlanInitFunc),
 		// Statically set the url we use to the unix file socket for the NSMgr
-		clienturl.NewServer(u),
+		clienturl.NewServer(clientURL),
 		connect.NewServer(client.NewClientFactory(
 			name,
 			// What to call onHeal
@@ -80,6 +82,7 @@ func NewServer(name string, authzPolicy *rego.PreparedEvalQuery, vppagentCC grpc
 			// l2 cross connect (xconnect) between incoming and outgoing connections
 			// TODO - properly support l3xconnect for IP payload
 			l2xconnect.NewClient()),
+			clientDialOptions...,
 		),
 		ipaddress.NewServer(),
 		routes.NewServer(),
