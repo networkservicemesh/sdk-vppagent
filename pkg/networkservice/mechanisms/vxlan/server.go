@@ -87,9 +87,9 @@ func (v *vxlanServer) appendInterfaceConfig(ctx context.Context, conn *networkse
 	if mechanism := vxlan.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		conn.GetMechanism().GetParameters()[vxlan.DstIP] = v.dstIP.String()
 		// TODO do VNI selection here
-		vni, err := mechanism.VNI()
-		if err != nil {
-			return err
+		vni := mechanism.VNI()
+		if vni == 0 {
+			return errors.New(vniHasWrongValue)
 		}
 		conf.GetVppConfig().Interfaces = append(conf.GetVppConfig().Interfaces, &vpp.Interface{
 			Name:    conn.GetId(),

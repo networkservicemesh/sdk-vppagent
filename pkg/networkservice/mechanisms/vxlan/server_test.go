@@ -80,8 +80,7 @@ func TestVxlanServer(t *testing.T) {
 			// Note: srcIP and DstIp are relative to the *client*, and so on the server side are flipped
 			assert.Equal(t, dstIP.String(), vxlanInterface.GetSrcAddress())
 			assert.Equal(t, srcIP.String(), vxlanInterface.GetDstAddress())
-			vni, err := vmech.VNI()
-			assert.Nil(t, err)
+			vni := vmech.VNI()
 			assert.Equal(t, vni, vxlanInterface.GetVni())
 		},
 		testRequest,

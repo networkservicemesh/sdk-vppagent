@@ -79,8 +79,7 @@ func TestVxlanClient(t *testing.T) {
 			assert.NotNil(t, vxlanInterface)
 			assert.Equal(t, srcIP.String(), vxlanInterface.GetSrcAddress())
 			assert.Equal(t, dstIP.String(), vxlanInterface.GetDstAddress())
-			vni, err := vmech.VNI()
-			assert.Nil(t, err)
+			vni := vmech.VNI()
 			assert.Equal(t, vni, vxlanInterface.GetVni())
 		},
 		testRequest,

@@ -38,25 +38,25 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 	}
 	vppConfig := conf.GetVppConfig()
 
-	dstHostLocalSID, err := mechanism.SrcHostLocalSID()
-	if err != nil {
-		return err
+	dstHostLocalSID := mechanism.SrcHostLocalSID()
+	if dstHostLocalSID == "" {
+		return errors.New("destination host local SID is empty")
 	}
-	hardwareAddress, err := mechanism.SrcHardwareAddress()
-	if err != nil {
-		return err
+	hardwareAddress := mechanism.SrcHardwareAddress()
+	if hardwareAddress == "" {
+		return errors.New("source hardware address is empty")
 	}
-	srcBSID, err := mechanism.SrcBSID()
-	if err != nil {
-		return err
+	srcBSID := mechanism.SrcBSID()
+	if srcBSID == "" {
+		return errors.New("source BSID is empty")
 	}
-	srcLocalSID, err := mechanism.SrcLocalSID()
-	if err != nil {
-		return err
+	srcLocalSID := mechanism.SrcLocalSID()
+	if srcLocalSID == "" {
+		return errors.New("source local SID is empty")
 	}
-	dstLocalSID, err := mechanism.DstLocalSID()
-	if err != nil {
-		return err
+	dstLocalSID := mechanism.DstLocalSID()
+	if dstLocalSID == "" {
+		return errors.New("destination local SID is empty")
 	}
 
 	var localIfaceName string

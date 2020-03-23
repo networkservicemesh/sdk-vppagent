@@ -107,9 +107,9 @@ func (v *vxlanClient) Close(ctx context.Context, conn *networkservice.Connection
 func (v *vxlanClient) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) error {
 	conf := vppagent.Config(ctx)
 	if mechanism := vxlan.ToMechanism(conn.GetMechanism()); mechanism != nil {
-		vni, err := mechanism.VNI()
-		if err != nil {
-			return err
+		vni := mechanism.VNI()
+		if vni == 0 {
+			return errors.New(vniHasWrongValue)
 		}
 		conf.GetVppConfig().Interfaces = append(conf.GetVppConfig().Interfaces, &vpp.Interface{
 			Name:    conn.GetId(),
