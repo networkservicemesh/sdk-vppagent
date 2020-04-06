@@ -39,6 +39,7 @@ import (
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontextkernel/ipcontext/routes"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/memif"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/srv6"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/vxlan"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/xconnect/l2xconnect"
@@ -69,6 +70,7 @@ func NewServer(name string, authzPolicy *rego.PreparedEvalQuery, vppagentCC grpc
 		memif.NewServer(baseDir),
 		kernel.NewServer(),
 		vxlan.NewServer(tunnelIP, vxlanInitFunc),
+		srv6.NewServer(),
 		// Statically set the url we use to the unix file socket for the NSMgr
 		clienturl.NewServer(clientURL),
 		connect.NewServer(client.NewClientFactory(
@@ -79,6 +81,7 @@ func NewServer(name string, authzPolicy *rego.PreparedEvalQuery, vppagentCC grpc
 			memif.NewClient(baseDir),
 			kernel.NewClient(),
 			vxlan.NewClient(tunnelIP, vxlanInitFunc),
+			srv6.NewClient(),
 			// l2 cross connect (xconnect) between incoming and outgoing connections
 			// TODO - properly support l3xconnect for IP payload
 			l2xconnect.NewClient()),
