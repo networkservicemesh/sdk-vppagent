@@ -21,6 +21,8 @@ import (
 	"net"
 	"net/url"
 
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/metrics"
+
 	"github.com/open-policy-agent/opa/rego"
 	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
 
@@ -89,6 +91,7 @@ func NewServer(name string, authzPolicy *rego.PreparedEvalQuery, vppagentCC grpc
 		),
 		ipaddress.NewServer(),
 		routes.NewServer(),
+		metrics.NewServer(configurator.NewStatsPollerServiceClient(vppagentCC)),
 		commit.NewServer(vppagentCC),
 	)
 	return rv
