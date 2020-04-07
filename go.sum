@@ -191,10 +191,10 @@ github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJ
 github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/namsral/flag v1.7.4-pre/go.mod h1:OXldTctbM6SWH1K899kPZcf65KxJiD7MsceFUpB5yDo=
-github.com/networkservicemesh/api v0.0.0-20200323163158-d70a2540052a h1:iyd/vMWZHmfQxUslz7o26dGV0w5Bk4z62U3UVyMIrRU=
-github.com/networkservicemesh/api v0.0.0-20200323163158-d70a2540052a/go.mod h1:6hH0TfujZVin9W/6rWY7JnmNBNRvUrgXhr1aWyKuQKI=
-github.com/networkservicemesh/sdk v0.0.0-20200403232247-776fe172c353 h1:eTI/K6HB6SLhu9gU7ycCPUB7lPWgwOaeTejmANmfFRs=
-github.com/networkservicemesh/sdk v0.0.0-20200403232247-776fe172c353/go.mod h1:OVg8/INaoB9WXh/55pA48qlu0YU5DpS0nvVIu1l9raY=
+github.com/networkservicemesh/api v0.0.0-20200406155720-f83d62671681 h1:YZRv0hcKtU7j/H9yRdeX+lWsS7QZdR9xZeD2YN5YMM0=
+github.com/networkservicemesh/api v0.0.0-20200406155720-f83d62671681/go.mod h1:6hH0TfujZVin9W/6rWY7JnmNBNRvUrgXhr1aWyKuQKI=
+github.com/networkservicemesh/sdk v0.0.0-20200407070829-f754b7f51251 h1:+G5yUnNjw6Jb+qk0cIM+vYsPvn3iH/cBnFWsVtnaZ7k=
+github.com/networkservicemesh/sdk v0.0.0-20200407070829-f754b7f51251/go.mod h1:VvUrRjH+SRNgz38hofnMNaE3OUl1l8L9A43N95qIbV8=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/olekukonko/tablewriter v0.0.1/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=
 github.com/onsi/ginkgo v1.6.0 h1:Ix8l273rp3QzYgXSR+c8d1fTG7UPgYkOSELPhiY/YGw=

@@ -5,8 +5,8 @@ go 1.13
 require (
 	github.com/golang/protobuf v1.3.3
 	github.com/kr/pretty v0.2.0 // indirect
-	github.com/networkservicemesh/api v0.0.0-20200323163158-d70a2540052a
-	github.com/networkservicemesh/sdk v0.0.0-20200403232247-776fe172c353
+	github.com/networkservicemesh/api v0.0.0-20200406155720-f83d62671681
+	github.com/networkservicemesh/sdk v0.0.0-20200407070829-f754b7f51251
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/open-policy-agent/opa v0.16.1
 	github.com/pkg/errors v0.9.1
