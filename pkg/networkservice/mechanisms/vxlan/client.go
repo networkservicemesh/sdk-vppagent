@@ -73,7 +73,7 @@ func (v *vxlanClient) Request(ctx context.Context, request *networkservice.Netwo
 	request.MechanismPreferences = append(request.MechanismPreferences, preferredMechanism)
 	rv, err := next.Client(ctx).Request(ctx, request, opts...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	v.initOnce.Do(func() {
 		v.err = v.initFunc(vppagent.Config(ctx))
@@ -90,7 +90,7 @@ func (v *vxlanClient) Request(ctx context.Context, request *networkservice.Netwo
 func (v *vxlanClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
 	rv, err := next.Client(ctx).Close(ctx, conn, opts...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	v.initOnce.Do(func() {
 		v.err = v.initFunc(vppagent.Config(ctx))

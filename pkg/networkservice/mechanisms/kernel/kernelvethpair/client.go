@@ -21,7 +21,6 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
@@ -61,7 +60,7 @@ func (k *kernelVethPairClient) Request(ctx context.Context, request *networkserv
 	request.MechanismPreferences = append(request.MechanismPreferences, preferredMechanism)
 	conn, err := next.Client(ctx).Request(ctx, request, opts...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	if err := appendInterfaceConfig(ctx, conn, fmt.Sprintf("client-%s", conn.GetId()), k.fileNameFromInodeNumberFunc); err != nil {
 		return nil, err
