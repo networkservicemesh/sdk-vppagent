@@ -215,8 +215,8 @@ github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRW
 github.com/namsral/flag v1.7.4-pre/go.mod h1:OXldTctbM6SWH1K899kPZcf65KxJiD7MsceFUpB5yDo=
 github.com/networkservicemesh/api v0.0.0-20200413003704-e57e43fc2237 h1:pDaMpBepAVmdyLg4g145Ydejmh77Q3Ee8oZ53SdNFhQ=
 github.com/networkservicemesh/api v0.0.0-20200413003704-e57e43fc2237/go.mod h1:6hH0TfujZVin9W/6rWY7JnmNBNRvUrgXhr1aWyKuQKI=
-github.com/networkservicemesh/sdk v0.0.0-20200414030639-f7dd605f571a h1:03bTSNBt9hQ0URO4aS8vpHqoQ9LjsZX8sD1b7K5/NhA=
-github.com/networkservicemesh/sdk v0.0.0-20200414030639-f7dd605f571a/go.mod h1:2eTvXfsBwFtVX5HJczrHnZxYCLH6BWQGGrcj4WSr3pY=
+github.com/networkservicemesh/sdk v0.0.0-20200414034604-919eeb2fe102 h1:UEx8zIrrYpdqm+QGyhsSZe49Z4MXupXr6/GowpZDalg=
+github.com/networkservicemesh/sdk v0.0.0-20200414034604-919eeb2fe102/go.mod h1:2eTvXfsBwFtVX5HJczrHnZxYCLH6BWQGGrcj4WSr3pY=
 github.com/nkovacs/streamquote v0.0.0-20170412213628-49af9bddb229/go.mod h1:0aYXnNPJ8l7uZxf45rWW1a/uME32OF0rhiYGNQ2oF2E=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/olekukonko/tablewriter v0.0.1/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=
