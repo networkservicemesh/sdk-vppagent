@@ -24,6 +24,9 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/srv6"
+
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 )
 
@@ -35,6 +38,11 @@ func NewClient() networkservice.NetworkServiceClient {
 }
 
 func (v *srv6Client) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
+	preferredMechanism := &networkservice.Mechanism{
+		Cls:  cls.REMOTE,
+		Type: srv6.MECHANISM,
+	}
+	request.MechanismPreferences = append(request.MechanismPreferences, preferredMechanism)
 	if err := appendInterfaceConfig(ctx, request.GetConnection(), true); err != nil {
 		return nil, err
 	}
