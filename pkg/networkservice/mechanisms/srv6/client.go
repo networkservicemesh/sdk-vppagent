@@ -30,6 +30,11 @@ import (
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 )
 
+const (
+	// MECHANISM string
+	MECHANISM = srv6.MECHANISM
+)
+
 type srv6Client struct{}
 
 // NewClient provides a NetworkServiceClient chain elements that support the srv6 Mechanism

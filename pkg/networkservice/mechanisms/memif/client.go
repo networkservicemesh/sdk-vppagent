@@ -36,6 +36,11 @@ import (
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 )
 
+const (
+	// MECHANISM string
+	MECHANISM = memif.MECHANISM
+)
+
 type memifClient struct {
 	baseDir string
 }

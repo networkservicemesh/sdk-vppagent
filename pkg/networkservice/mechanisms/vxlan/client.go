@@ -38,6 +38,11 @@ import (
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
+const (
+	// MECHANISM string
+	MECHANISM = vxlan.MECHANISM
+)
+
 // EmptyInitFunc is a convenience initFunc that does nothing
 func EmptyInitFunc(conf *configurator.Config) error { return nil }
 
