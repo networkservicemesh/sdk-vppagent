@@ -3,6 +3,7 @@ module github.com/networkservicemesh/sdk-vppagent
 go 1.13
 
 require (
+	github.com/edwarnicke/exechelper v0.0.0-20200506003445-a22a20bad778
 	github.com/golang/protobuf v1.3.5
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/networkservicemesh/api v0.0.0-20200420181128-698cb005ceb0

@@ -24,58 +24,77 @@ import (
 	"os"
 	"path"
 
-	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 
+	"github.com/edwarnicke/exechelper"
 	"github.com/networkservicemesh/sdk/pkg/tools/errctx"
-	"github.com/networkservicemesh/sdk/pkg/tools/executils"
 	"github.com/networkservicemesh/sdk/pkg/tools/log"
 )
 
 // StartAndDialContext - starts vppagent (and vpp), dials them using any provided options and returns the resulting
-// grpc.ClientConnInterface, a context for the running vppagent (and vpp) servers and any error that occurred
-// The returned context will be canceled with the vpp or vppagent servers die.  In addition, you can retrieve the error
-// for their death from that context using errctx.Err(...).
+// grpc.ClientConnInterface, and an error chan that will receive the error from the lifecycle of the vppagent and vpp
+// and be closed when both have exited.
 // Stdout and Stderr for the vppagent and vpp are set to be log.Entry(ctx).Writer().
-func StartAndDialContext(ctx context.Context, dialOptions ...grpc.DialOption) (grpc.ClientConnInterface, context.Context, error) {
-	ctx, cancel := context.WithCancel(ctx)
+func StartAndDialContext(ctx context.Context, dialOptions ...grpc.DialOption) (vppagentCC grpc.ClientConnInterface, errCh chan error) {
+	errCh = make(chan error, 4)
 	ctx = errctx.WithErr(ctx)
 	if err := writeDefaultConfigFiles(ctx); err != nil {
-		errctx.SetErr(ctx, err)
-		cancel()
-		return nil, ctx, err
+		errCh <- err
+		close(errCh)
+		return nil, errCh
 	}
-	vppCtx, err := executils.Start(log.WithField(ctx, "cmd", "vpp"), "vpp -c "+vppConfFilename)
-	if err != nil {
-		errctx.SetErr(ctx, err)
-		cancel()
-		return nil, ctx, err
+	logWriter := log.Entry(ctx).WithField("cmd", "vpp").Writer()
+	vppErrCh := exechelper.Start("vpp -c "+vppConfFilename,
+		exechelper.WithContext(ctx),
+		exechelper.WithStdout(logWriter),
+		exechelper.WithStderr(logWriter),
+	)
+	select {
+	case err := <-vppErrCh:
+		errCh <- err
+		close(errCh)
+		return nil, errCh
+	default:
 	}
-	vppagentCtx, err := executils.Start(log.WithField(ctx, "cmd", "vpp-agent"), "vpp-agent -config-dir="+vppAgentConfDir)
-	if err != nil {
-		errctx.SetErr(ctx, err)
-		cancel()
-		return nil, ctx, err
+	logWriter = log.Entry(ctx).WithField("cmd", "vpp-agent").Writer()
+	vppagentErrCh := exechelper.Start("vpp-agent -config-dir="+vppAgentConfDir,
+		exechelper.WithContext(ctx),
+		exechelper.WithStdout(logWriter),
+		exechelper.WithStderr(logWriter),
+	)
+	select {
+	case err := <-vppErrCh:
+		errCh <- err
+		close(errCh)
+		return nil, errCh
+	default:
 	}
 	// grpc.ClientConn for dialing the vppagent
 	vppagentCC, err := grpc.DialContext(ctx, vppEndpoint, grpc.WithInsecure())
 	if err != nil {
-		errctx.SetErr(ctx, err)
-		cancel()
-		return nil, ctx, err
+		errCh <- err
+		close(errCh)
+		return nil, errCh
 	}
 	go func() {
-		select {
-		case <-vppCtx.Done():
-			errctx.SetErr(ctx, errors.Errorf("vpp quit unexpectedly: %+v", errctx.Err(vppCtx)))
-			cancel()
-		case <-vppagentCtx.Done():
-			errctx.SetErr(ctx, errors.Errorf("vpp-agent quit unexpectedly: %+v", errctx.Err(vppagentCtx)))
-			cancel()
-		case <-ctx.Done():
+		var err error
+		vppOk := true
+		vppagentOk := true
+		for vppOk || vppagentOk {
+			select {
+			case err, vppOk = <-vppErrCh:
+				if vppOk {
+					errCh <- err
+				}
+			case err, vppagentOk = <-vppagentErrCh:
+				if vppagentOk {
+					errCh <- err
+				}
+			}
 		}
+		close(errCh)
 	}()
-	return vppagentCC, ctx, nil
+	return vppagentCC, errCh
 }
 
 func writeDefaultConfigFiles(ctx context.Context) error {
