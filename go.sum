@@ -84,8 +84,8 @@ github.com/docker/libnetwork v0.0.0-20180726175142-9ffeaf7d8b64/go.mod h1:93m0aT
 github.com/eapache/go-resiliency v1.1.0/go.mod h1:kFI+JgMyC7bLPUVY133qvEBtVayf5mFgVsvEsIPBvNs=
 github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21/go.mod h1:+020luEh2TKB4/GOp8oxxtq0Daoen/Cii55CzbTV6DU=
 github.com/eapache/queue v1.1.0/go.mod h1:6eCeP0CKFpHLu8blIFXhExK/dRa7WDZfr6jVFPTqq+I=
-github.com/edwarnicke/exechelper v0.0.0-20200506003445-a22a20bad778 h1:sHtcUU+3il1JGJPQdZzk7DAQkVoWububeSDSzyE8G28=
-github.com/edwarnicke/exechelper v0.0.0-20200506003445-a22a20bad778/go.mod h1:/T271jtNX/ND4De6pa2aRy2+8sNtyCDB1A2pp4M+fUs=
+github.com/edwarnicke/exechelper v1.0.1 h1:0FwYHBKyLK2Ce97u86BXI3tnD6Dwlt9Qj2XkPgfP1Bg=
+github.com/edwarnicke/exechelper v1.0.1/go.mod h1:/T271jtNX/ND4De6pa2aRy2+8sNtyCDB1A2pp4M+fUs=
 github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385/go.mod h1:0vRUJqYpeSZifjYj7uP3BG/gKcuzL9xWVV/Y+cK33KM=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
@@ -257,8 +257,8 @@ github.com/nats-io/nuid v1.0.1/go.mod h1:19wcPz3Ph3q0Jbyiqsd0kePYG7A95tJPxeL+1OS
 github.com/nats-io/stan.go v0.6.0/go.mod h1:eIcD5bi3pqbHT/xIIvXMwvzXYElgouBvaVRftaE+eac=
 github.com/networkservicemesh/api v0.0.0-20200522152139-c919c7427aab h1:nBru1Azncw3oNYKAAOYWLgZAO6i5FphUEgVb09WiRcw=
 github.com/networkservicemesh/api v0.0.0-20200522152139-c919c7427aab/go.mod h1:6hH0TfujZVin9W/6rWY7JnmNBNRvUrgXhr1aWyKuQKI=
-github.com/networkservicemesh/sdk v0.0.0-20200522152546-46759098f695 h1:bBOc8V+xXmbi/8iga8sgbatDhpBNXEi7iO86ON+ASh8=
-github.com/networkservicemesh/sdk v0.0.0-20200522152546-46759098f695/go.mod h1:LNnPQTJynn3PNev8LMGE4lA7kNzRvGOW+E7yd0OxW94=
+github.com/networkservicemesh/sdk v0.0.0-20200523185604-8912154cf258 h1:ETmaiI/J/AUyorBpHCf9enEoLtrq2M+Me69aVzNTUZ8=
+github.com/networkservicemesh/sdk v0.0.0-20200523185604-8912154cf258/go.mod h1:bTps8KtNlIQdMo6M6tcFhAjCEXBUt0duab7NU0hyRAo=
 github.com/nkovacs/streamquote v0.0.0-20170412213628-49af9bddb229/go.mod h1:0aYXnNPJ8l7uZxf45rWW1a/uME32OF0rhiYGNQ2oF2E=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/olekukonko/tablewriter v0.0.1/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=

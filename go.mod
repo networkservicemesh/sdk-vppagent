@@ -3,11 +3,11 @@ module github.com/networkservicemesh/sdk-vppagent
 go 1.13
 
 require (
-	github.com/edwarnicke/exechelper v0.0.0-20200506003445-a22a20bad778
+	github.com/edwarnicke/exechelper v1.0.1
 	github.com/golang/protobuf v1.3.5
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/networkservicemesh/api v0.0.0-20200522152139-c919c7427aab
-	github.com/networkservicemesh/sdk v0.0.0-20200522152546-46759098f695
+	github.com/networkservicemesh/sdk v0.0.0-20200523185604-8912154cf258
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/open-policy-agent/opa v0.16.1
 	github.com/pkg/errors v0.9.1
