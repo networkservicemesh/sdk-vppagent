@@ -28,7 +28,6 @@ import (
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/metrics"
 
-	"github.com/open-policy-agent/opa/rego"
 	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/directmemif"
@@ -66,11 +65,11 @@ type xconnectNSServer struct {
 //             vxlanInitFunc - function to perform initial configuration of vppagent
 //             clientUrl - *url.URL for the talking to the NSMgr
 //             ...clientDialOptions - dialOptions for dialing the NSMgr
-func NewServer(name string, authzPolicy *rego.PreparedEvalQuery, tokenGenerator token.GeneratorFunc, vppagentCC grpc.ClientConnInterface, baseDir string, tunnelIP net.IP, vxlanInitFunc func(conf *configurator.Config) error, clientURL *url.URL, clientDialOptions ...grpc.DialOption) endpoint.Endpoint {
+func NewServer(name string, authzServer networkservice.NetworkServiceServer, tokenGenerator token.GeneratorFunc, vppagentCC grpc.ClientConnInterface, baseDir string, tunnelIP net.IP, vxlanInitFunc func(conf *configurator.Config) error, clientURL *url.URL, clientDialOptions ...grpc.DialOption) endpoint.Endpoint {
 	rv := xconnectNSServer{}
 	rv.Endpoint = endpoint.NewServer(
 		name,
-		authzPolicy,
+		authzServer,
 		tokenGenerator,
 		// Make sure we have a fresh empty config for everyone in the chain to use
 		vppagent.NewServer(),
