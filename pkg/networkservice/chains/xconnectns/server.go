@@ -21,7 +21,10 @@ import (
 	"net"
 	"net/url"
 
+	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/sdk/pkg/tools/token"
+
+	"github.com/networkservicemesh/sdk/pkg/networkservice/common/mechanisms"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/metrics"
 
@@ -30,13 +33,14 @@ import (
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/directmemif"
 
+	"google.golang.org/grpc"
+
 	"github.com/networkservicemesh/sdk/pkg/networkservice/chains/client"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/chains/endpoint"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/common/clienturl"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/common/connect"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/adapters"
 	"github.com/networkservicemesh/sdk/pkg/tools/addressof"
-	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/commit"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontext/ipcontext/ipaddress"
@@ -71,11 +75,12 @@ func NewServer(name string, authzPolicy *rego.PreparedEvalQuery, tokenGenerator 
 		// Make sure we have a fresh empty config for everyone in the chain to use
 		vppagent.NewServer(),
 		directmemif.NewServer(),
-		// Preference ordered list of mechanisms we support for incoming connections
-		memif.NewServer(baseDir),
-		kernel.NewServer(),
-		vxlan.NewServer(tunnelIP, vxlanInitFunc),
-		srv6.NewServer(),
+		mechanisms.NewServer(map[string]networkservice.NetworkServiceServer{
+			memif.MECHANISM:  memif.NewServer(baseDir),
+			kernel.MECHANISM: kernel.NewServer(),
+			vxlan.MECHANISM:  vxlan.NewServer(tunnelIP, vxlanInitFunc),
+			srv6.MECHANISM:   srv6.NewServer(),
+		}),
 		// Statically set the url we use to the unix file socket for the NSMgr
 		clienturl.NewServer(clientURL),
 		connect.NewServer(client.NewClientFactory(
