@@ -250,8 +250,8 @@ github.com/nats-io/nuid v1.0.1/go.mod h1:19wcPz3Ph3q0Jbyiqsd0kePYG7A95tJPxeL+1OS
 github.com/nats-io/stan.go v0.6.0/go.mod h1:eIcD5bi3pqbHT/xIIvXMwvzXYElgouBvaVRftaE+eac=
 github.com/networkservicemesh/api v0.0.0-20200525170518-89690ec70489 h1:xvLyZpjsa4qwvqTxnt2v7JYXdbTM7AEgrbwNySKciRM=
 github.com/networkservicemesh/api v0.0.0-20200525170518-89690ec70489/go.mod h1:6hH0TfujZVin9W/6rWY7JnmNBNRvUrgXhr1aWyKuQKI=
-github.com/networkservicemesh/sdk v0.0.0-20200603021555-8f704f1023ce h1:kHGR7L8hTiJM730zmPl10NlCdJyzbKQ5cXYSbJzPnDU=
-github.com/networkservicemesh/sdk v0.0.0-20200603021555-8f704f1023ce/go.mod h1:U2+b9XxgjIobX3PMEOERhgfZHhg3sgCWYiLnPxGktdE=
+github.com/networkservicemesh/sdk v0.0.0-20200603153809-b21487ab2896 h1:oDXYnm1VInhUY1YtXj2fGQWfHHe3t2zs0NYssF1BW5E=
+github.com/networkservicemesh/sdk v0.0.0-20200603153809-b21487ab2896/go.mod h1:U2+b9XxgjIobX3PMEOERhgfZHhg3sgCWYiLnPxGktdE=
 github.com/nkovacs/streamquote v0.0.0-20170412213628-49af9bddb229/go.mod h1:0aYXnNPJ8l7uZxf45rWW1a/uME32OF0rhiYGNQ2oF2E=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/olekukonko/tablewriter v0.0.1/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=
