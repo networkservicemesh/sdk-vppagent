@@ -64,16 +64,16 @@ func GetMyNetNSInodeNum() (uint64, error) {
 
 // resolvePodNsByInode Traverse /proc/<pid>/<suffix> files,
 // compare their inodes with inode parameter and returns file if inode matches
-func resolvePodNSByInode(inode uint64) (string, error) {
+func resolveNSByInode(inode uint64) (string, error) {
 	files, err := ioutil.ReadDir("/proc")
 	if err != nil {
 		return "", errors.Wrap(err, "can't read /proc directory")
 	}
-
+	var filename string
 	for _, f := range files {
 		name := f.Name()
 		if isDigits(name) {
-			filename := path.Join("/proc", name, "/ns/net")
+			filename = path.Join("/proc", name, "/ns/net")
 			tryInode, err := getInode(filename)
 			if err != nil {
 				continue
@@ -85,8 +85,11 @@ func resolvePodNSByInode(inode uint64) (string, error) {
 			}
 		}
 	}
+	if filename != "" {
+		return filename, nil
+	}
 
-	return "", errors.New("not found")
+	return "", errors.Errorf("/proc/${pid}/net/ns with inode %d not found", inode)
 }
 
 // LinuxNetNSFileName returns a filename of a file from /proc/*/ns/net that has an inode matching inodeString
@@ -95,7 +98,7 @@ func LinuxNetNSFileName(inodeString string) (string, error) {
 	if err != nil {
 		return "", errors.Errorf("inodeString must be an unsigned int, instead was: \"%s\"", inodeString)
 	}
-	return resolvePodNSByInode(inodeNum)
+	return resolveNSByInode(inodeNum)
 }
 
 func getCmdline(pid string) (string, error) {

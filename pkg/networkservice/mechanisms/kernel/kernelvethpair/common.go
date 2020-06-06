@@ -19,7 +19,6 @@ package kernelvethpair
 import (
 	"context"
 
-	"github.com/sirupsen/logrus"
 	linuxinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/linux/interfaces"
 	linuxnamespace "go.ligato.io/vpp-agent/v3/proto/ligato/linux/namespace"
 	vppinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/interfaces"
@@ -38,7 +37,6 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 		if err != nil {
 			return err
 		}
-		logrus.Info("Did Not Find /dev/vhost-net - using veth pairs")
 		linuxName := name
 		if len(linuxName) > kernel.LinuxIfMaxLength {
 			linuxName = linuxName[:kernel.LinuxIfMaxLength]
