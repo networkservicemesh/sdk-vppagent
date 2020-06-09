@@ -18,6 +18,7 @@ package commit
 
 import (
 	"context"
+	"sync"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
@@ -34,6 +35,7 @@ import (
 type commitServer struct {
 	vppagentCC     grpc.ClientConnInterface
 	vppagentClient configurator.ConfiguratorServiceClient
+	sync.Once
 }
 
 // NewServer creates a NetworkServiceServer chain elements for committing the vppagent *configurator.Config
@@ -46,8 +48,13 @@ func NewServer(vppagentCC grpc.ClientConnInterface) networkservice.NetworkServic
 }
 
 func (c *commitServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
+	// First time we connect we need to do a FullResync
+	var fullResync bool
+	c.Do(func() {
+		fullResync = true
+	})
 	conf := vppagent.Config(ctx)
-	_, err := c.vppagentClient.Update(ctx, &configurator.UpdateRequest{Update: conf})
+	_, err := c.vppagentClient.Update(ctx, &configurator.UpdateRequest{Update: conf, FullResync: fullResync})
 	if err != nil {
 		return nil, errors.Wrapf(err, "error sending config to vppagent %s: ", conf)
 	}
