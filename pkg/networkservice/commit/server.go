@@ -54,7 +54,7 @@ func (c *commitServer) Request(ctx context.Context, request *networkservice.Netw
 		fullResync = true
 	})
 	conf := vppagent.Config(ctx)
-	_, err := c.vppagentClient.Update(ctx, &configurator.UpdateRequest{Update: conf, FullResync: fullResync})
+	_, err := c.vppagentClient.Update(ctx, &configurator.UpdateRequest{Update: conf, FullResync: fullResync}, grpc.WaitForReady(true))
 	if err != nil {
 		return nil, errors.Wrapf(err, "error sending config to vppagent %s: ", conf)
 	}
