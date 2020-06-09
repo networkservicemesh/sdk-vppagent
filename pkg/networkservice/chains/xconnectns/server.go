@@ -42,7 +42,7 @@ import (
 	"github.com/networkservicemesh/sdk/pkg/tools/addressof"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/commit"
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontext/ipcontext/ipaddress"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontextkernel/ipcontext/ipaddress"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontextkernel/ipcontext/routes"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/memif"
