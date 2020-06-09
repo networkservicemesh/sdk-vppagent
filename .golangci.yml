@@ -161,3 +161,7 @@ issues:
       linters:
         - funlen
       text: "Function 'appendInterfaceConfig' is too long"
+    - path: pkg/networkservice/mechanisms/kernel/kernelvethpair/common_test.go
+      linters:
+        - staticcheck
+      text: "SA1019: afpacketInterface.GetHostIfName is deprecated: Do not use."

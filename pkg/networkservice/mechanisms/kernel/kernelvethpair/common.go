@@ -43,13 +43,15 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 		}
 		conf.GetLinuxConfig().Interfaces = append(conf.GetLinuxConfig().Interfaces,
 			&linuxinterfaces.Interface{
-				Name:       name,
+				Name:       name + "-veth",
 				Type:       linuxinterfaces.Interface_VETH,
 				Enabled:    true,
 				HostIfName: linuxName,
 				Link: &linuxinterfaces.Interface_Veth{
 					Veth: &linuxinterfaces.VethLink{
-						PeerIfName: mechanism.GetInterfaceName(conn),
+						PeerIfName:           name,
+						RxChecksumOffloading: linuxinterfaces.VethLink_CHKSM_OFFLOAD_DISABLED,
+						TxChecksumOffloading: linuxinterfaces.VethLink_CHKSM_OFFLOAD_DISABLED,
 					},
 				},
 			},
@@ -64,7 +66,9 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 				},
 				Link: &linuxinterfaces.Interface_Veth{
 					Veth: &linuxinterfaces.VethLink{
-						PeerIfName: linuxName,
+						PeerIfName:           name + "-veth",
+						RxChecksumOffloading: linuxinterfaces.VethLink_CHKSM_OFFLOAD_DISABLED,
+						TxChecksumOffloading: linuxinterfaces.VethLink_CHKSM_OFFLOAD_DISABLED,
 					},
 				},
 			})
@@ -74,7 +78,7 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 			Enabled: true,
 			Link: &vppinterfaces.Interface_Afpacket{
 				Afpacket: &vppinterfaces.AfpacketLink{
-					LinuxInterface: linuxName,
+					HostIfName: linuxName,
 				},
 			},
 		})

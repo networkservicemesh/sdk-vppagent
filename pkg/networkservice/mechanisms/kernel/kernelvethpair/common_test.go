@@ -65,8 +65,8 @@ func checkVppAgentConfig(prefix string, request *networkservice.NetworkServiceRe
 		assert.Equal(t, filepath, linuxInterfaces[1].GetNamespace().GetReference())
 
 		// Check vethpair peers are correct
-		assert.Equal(t, linuxInterfaces[0].GetHostIfName(), veths[1].GetPeerIfName())
-		assert.Equal(t, linuxInterfaces[1].GetHostIfName(), veths[0].GetPeerIfName())
+		assert.Equal(t, linuxInterfaces[0].GetName(), veths[1].GetPeerIfName())
+		assert.Equal(t, linuxInterfaces[1].GetName(), veths[0].GetPeerIfName())
 
 		// Check VPP Interface
 		require.Greater(t, len(conf.GetVppConfig().GetInterfaces()), 0)
@@ -76,6 +76,6 @@ func checkVppAgentConfig(prefix string, request *networkservice.NetworkServiceRe
 		assert.Equal(t, fmt.Sprintf("%s-%s", prefix, request.GetConnection().GetId()), vppInterface.GetName())
 		afpacketInterface := vppInterface.GetAfpacket()
 		assert.NotNil(t, afpacketInterface)
-		assert.Equal(t, afpacketInterface.GetLinuxInterface(), linuxInterfaces[0].GetHostIfName())
+		assert.Equal(t, afpacketInterface.GetHostIfName(), linuxInterfaces[0].GetHostIfName())
 	}
 }
