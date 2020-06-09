@@ -67,7 +67,10 @@ func (s *setIPKernelClient) Request(ctx context.Context, request *networkservice
 	conf := vppagent.Config(ctx)
 	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
 		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
-		conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
+		srcIP := conn.GetContext().GetIpContext().GetSrcIpAddr()
+		if srcIP != "" {
+			conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{srcIP}
+		}
 	}
 	return conn, nil
 }
@@ -80,7 +83,10 @@ func (s *setIPKernelClient) Close(ctx context.Context, conn *networkservice.Conn
 	conf := vppagent.Config(ctx)
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
 		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
-		conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
+		srcIP := conn.GetContext().GetIpContext().GetSrcIpAddr()
+		if srcIP != "" {
+			conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
+		}
 	}
 	return e, err
 }

@@ -63,7 +63,9 @@ func (s *setIPKernelServer) Request(ctx context.Context, request *networkservice
 	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
 		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
 		dstIP := request.GetConnection().GetContext().GetIpContext().GetDstIpAddr()
-		conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
+		if dstIP != "" {
+			conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
+		}
 	}
 	return next.Client(ctx).Request(ctx, request)
 }
@@ -73,7 +75,9 @@ func (s *setIPKernelServer) Close(ctx context.Context, conn *networkservice.Conn
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
 		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
 		dstIP := conn.GetContext().GetIpContext().GetDstIpAddr()
-		conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
+		if dstIP != "" {
+			conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
+		}
 	}
 	return next.Client(ctx).Close(ctx, conn)
 }
