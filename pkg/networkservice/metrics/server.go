@@ -28,8 +28,8 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
+	"github.com/networkservicemesh/sdk/pkg/networkservice/core/trace"
 	"github.com/networkservicemesh/sdk/pkg/tools/serialize"
-	"github.com/sirupsen/logrus"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
@@ -59,7 +59,7 @@ func (s *metricsServer) Request(ctx context.Context, request *networkservice.Net
 }
 
 func (s *metricsServer) retieveVppStats(ctx context.Context, conn *networkservice.Connection, index uint32, ifaces []*vpp_interfaces.Interface) {
-	logrus.Debugf("MetricsServer: Request Metrics")
+	trace.Log(ctx).Debugf("MetricsServer: Request Metrics")
 	req := &configurator.PollStatsRequest{
 		PeriodSec: 0,
 		NumPolls:  0,
@@ -68,14 +68,14 @@ func (s *metricsServer) retieveVppStats(ctx context.Context, conn *networkservic
 	defer cancelOp()
 	stream, err := s.vppClient.PollStats(streamCtx, req)
 	if err != nil {
-		logrus.Errorf("MetricsServer: Request Metrics: PollStats err: %v", err)
+		trace.Log(ctx).Errorf("MetricsServer: Request Metrics: PollStats err: %v", err)
 		return
 	}
 
 	for {
 		resp, err := stream.Recv()
 		if err != nil {
-			logrus.Errorf("MetricsServer: stream.Recv() err: %v", err)
+			trace.Log(ctx).Errorf("MetricsServer: stream.Recv() err: %v", err)
 			return
 		}
 		vppStats := resp.GetStats().GetVppStats()
@@ -83,7 +83,7 @@ func (s *metricsServer) retieveVppStats(ctx context.Context, conn *networkservic
 			conn.GetPath().GetPathSegments()[index].Metrics = s.newStatistics(vppStats.Interface)
 			return
 		}
-		logrus.Debugf("MetricsServer: GetStats(): %v", vppStats)
+		trace.Log(ctx).Debugf("MetricsServer: GetStats(): %v", vppStats)
 	}
 }
 
