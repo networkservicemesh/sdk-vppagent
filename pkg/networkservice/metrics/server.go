@@ -76,14 +76,14 @@ func (s *metricsServer) retieveVppStats(ctx context.Context, conn *networkservic
 		resp, err := stream.Recv()
 		if err != nil {
 			logrus.Errorf("MetricsServer: stream.Recv() err: %v", err)
-		} else {
-			vppStats := resp.GetStats().GetVppStats()
-			if vppStats.Interface != nil && vppStats.Interface.Name == ifaces[0].Name {
-				conn.GetPath().GetPathSegments()[index].Metrics = s.newStatistics(vppStats.Interface)
-				return
-			}
-			logrus.Debugf("MetricsServer: GetStats(): %v", vppStats)
+			return
 		}
+		vppStats := resp.GetStats().GetVppStats()
+		if vppStats.Interface != nil && vppStats.Interface.Name == ifaces[0].Name {
+			conn.GetPath().GetPathSegments()[index].Metrics = s.newStatistics(vppStats.Interface)
+			return
+		}
+		logrus.Debugf("MetricsServer: GetStats(): %v", vppStats)
 	}
 }
 
