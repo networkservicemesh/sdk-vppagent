@@ -21,6 +21,7 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
 	l2 "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/l2"
 	"google.golang.org/grpc"
 
@@ -39,17 +40,26 @@ func NewClient() networkservice.NetworkServiceClient {
 }
 
 func (l *l2XconnectClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
-	l.appendInterfaceConfig(ctx)
-	return next.Client(ctx).Request(ctx, request, opts...)
+	rv, err := next.Client(ctx).Request(ctx, request, opts...)
+	if err != nil {
+		return nil, err
+	}
+	conf := vppagent.Config(ctx)
+	l.appendL2XConnect(conf)
+	return rv, nil
 }
 
 func (l *l2XconnectClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
-	l.appendInterfaceConfig(ctx)
-	return next.Client(ctx).Close(ctx, conn, opts...)
+	rv, err := next.Client(ctx).Close(ctx, conn, opts...)
+	if err != nil {
+		return nil, err
+	}
+	conf := vppagent.Config(ctx)
+	l.appendL2XConnect(conf)
+	return rv, nil
 }
 
-func (l *l2XconnectClient) appendInterfaceConfig(ctx context.Context) {
-	conf := vppagent.Config(ctx)
+func (l *l2XconnectClient) appendL2XConnect(conf *configurator.Config) {
 	if len(conf.GetVppConfig().GetInterfaces()) >= 2 {
 		ifaces := conf.GetVppConfig().GetInterfaces()[len(conf.GetVppConfig().Interfaces)-2:]
 		conf.GetVppConfig().XconnectPairs = append(conf.GetVppConfig().XconnectPairs,

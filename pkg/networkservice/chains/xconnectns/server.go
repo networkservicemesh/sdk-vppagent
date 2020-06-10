@@ -87,14 +87,14 @@ func NewServer(name string, authzServer networkservice.NetworkServiceServer, tok
 			// What to call onHeal
 			addressof.NetworkServiceClient(adapters.NewServerToClient(rv)),
 			tokenGenerator,
+			// l2 cross connect (xconnect) between incoming and outgoing connections
+			// TODO - properly support l3xconnect for IP payload
+			l2xconnect.NewClient(),
 			// Preference ordered list of mechanisms we support for outgoing connections
 			memif.NewClient(baseDir),
 			kernel.NewClient(),
 			vxlan.NewClient(tunnelIP, vxlanInitFunc),
-			srv6.NewClient(),
-			// l2 cross connect (xconnect) between incoming and outgoing connections
-			// TODO - properly support l3xconnect for IP payload
-			l2xconnect.NewClient()),
+			srv6.NewClient()),
 			clientDialOptions...,
 		),
 		ipaddress.NewServer(),
