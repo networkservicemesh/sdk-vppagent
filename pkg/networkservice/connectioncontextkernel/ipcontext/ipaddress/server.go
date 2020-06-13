@@ -22,11 +22,9 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
-	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
-
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/kernelctx"
 )
 
 type setIPKernelServer struct{}
@@ -59,25 +57,23 @@ func NewServer() networkservice.NetworkServiceServer {
 }
 
 func (s *setIPKernelServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
-	conf := vppagent.Config(ctx)
-	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
-		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
+	iface := kernelctx.ServerInterface(ctx)
+	if iface != nil {
 		dstIP := request.GetConnection().GetContext().GetIpContext().GetDstIpAddr()
 		if dstIP != "" {
-			conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
+			iface.IpAddresses = append(iface.GetIpAddresses(), dstIP)
 		}
 	}
-	return next.Client(ctx).Request(ctx, request)
+	return next.Server(ctx).Request(ctx, request)
 }
 
 func (s *setIPKernelServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
-	conf := vppagent.Config(ctx)
-	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
-		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
+	iface := kernelctx.ServerInterface(ctx)
+	if iface != nil {
 		dstIP := conn.GetContext().GetIpContext().GetDstIpAddr()
 		if dstIP != "" {
-			conf.GetLinuxConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
+			iface.IpAddresses = append(iface.GetIpAddresses(), dstIP)
 		}
 	}
-	return next.Client(ctx).Close(ctx, conn)
+	return next.Server(ctx).Close(ctx, conn)
 }

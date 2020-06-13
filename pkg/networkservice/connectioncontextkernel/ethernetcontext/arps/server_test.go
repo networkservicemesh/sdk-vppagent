@@ -28,6 +28,7 @@ import (
 	"go.ligato.io/vpp-agent/v3/proto/ligato/linux"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/kernelctx"
 )
 
 func TestClientBasic(t *testing.T) {
@@ -66,6 +67,7 @@ func (t *testingServer) Request(ctx context.Context, in *networkservice.NetworkS
 			},
 		},
 	}
+	ctx = kernelctx.WithServerInterface(ctx, config.GetLinuxConfig().GetInterfaces()[0])
 	conn, err := next.Server(ctx).Request(ctx, in)
 	assert.Nil(t, err)
 	expectedArp := &linux.ARPEntry{
@@ -89,6 +91,7 @@ func (t *testingServer) Close(ctx context.Context, conn *networkservice.Connecti
 			targetInterface,
 		},
 	}
+	ctx = kernelctx.WithServerInterface(ctx, config.GetLinuxConfig().GetInterfaces()[0])
 	result, err := next.Server(ctx).Close(ctx, conn)
 	assert.Nil(t, err)
 	expectedArp := &linux.ARPEntry{

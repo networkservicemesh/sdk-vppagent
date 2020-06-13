@@ -23,11 +23,11 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
-	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 	"go.ligato.io/vpp-agent/v3/proto/ligato/linux"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/kernelctx"
 )
 
 type setKernelArpsServer struct{}
@@ -39,32 +39,30 @@ func NewServer() networkservice.NetworkServiceServer {
 
 func (s *setKernelArpsServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	config := vppagent.Config(ctx)
-	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil && len(config.LinuxConfig.Interfaces) > 0 {
-		iface := config.LinuxConfig.Interfaces[len(config.LinuxConfig.Interfaces)-1]
-		if request.GetConnection().GetContext().GetEthernetContext().GetDstMac() != "" &&
-			request.GetConnection().GetContext().GetIpContext().GetDstIpAddr() != "" {
-			config.LinuxConfig.ArpEntries = append(config.LinuxConfig.ArpEntries, &linux.ARPEntry{
-				IpAddress: strings.Split(request.GetConnection().GetContext().IpContext.GetDstIpAddr(), "/")[0],
+	iface := kernelctx.ServerInterface(ctx)
+	if iface != nil && request.GetConnection().GetContext().GetEthernetContext().GetDstMac() != "" && request.GetConnection().GetContext().GetIpContext().GetDstIpAddr() != "" {
+		config.GetLinuxConfig().ArpEntries = append(config.GetLinuxConfig().GetArpEntries(),
+			&linux.ARPEntry{
+				IpAddress: strings.Split(request.GetConnection().GetContext().GetIpContext().GetDstIpAddr(), "/")[0],
 				Interface: iface.Name,
-				HwAddress: request.Connection.GetContext().EthernetContext.GetDstMac(),
-			})
-		}
+				HwAddress: request.Connection.GetContext().GetEthernetContext().GetDstMac(),
+			},
+		)
 	}
 	return next.Server(ctx).Request(ctx, request)
 }
 
 func (s *setKernelArpsServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	config := vppagent.Config(ctx)
-	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil && len(config.LinuxConfig.Interfaces) > 0 {
-		iface := config.LinuxConfig.Interfaces[len(config.LinuxConfig.Interfaces)-1]
-		if conn.GetContext().GetEthernetContext().GetDstMac() != "" &&
-			conn.GetContext().GetIpContext().GetDstIpAddr() != "" {
-			config.LinuxConfig.ArpEntries = append(config.LinuxConfig.ArpEntries, &linux.ARPEntry{
-				IpAddress: strings.Split(conn.GetContext().IpContext.DstIpAddr, "/")[0],
+	iface := kernelctx.ServerInterface(ctx)
+	if iface != nil && conn.GetContext().GetEthernetContext().GetDstMac() != "" && conn.GetContext().GetIpContext().GetDstIpAddr() != "" {
+		config.GetLinuxConfig().ArpEntries = append(config.GetLinuxConfig().GetArpEntries(),
+			&linux.ARPEntry{
+				IpAddress: strings.Split(conn.GetContext().GetIpContext().GetDstIpAddr(), "/")[0],
 				Interface: iface.Name,
-				HwAddress: conn.GetContext().EthernetContext.GetDstMac(),
-			})
-		}
+				HwAddress: conn.GetContext().GetEthernetContext().GetDstMac(),
+			},
+		)
 	}
 	return next.Server(ctx).Close(ctx, conn)
 }

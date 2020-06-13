@@ -30,12 +30,12 @@ import (
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
-func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection, name string, fileNameFromInodeNumberFunc func(string) (string, error)) error {
+func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection, name string, fileNameFromInodeNumberFunc func(string) (string, error)) (*linuxinterfaces.Interface, error) {
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		conf := vppagent.Config(ctx)
 		filepath, err := fileNameFromInodeNumberFunc(mechanism.GetParameters()[common.NetNSInodeKey])
 		if err != nil {
-			return err
+			return nil, err
 		}
 		linuxName := name
 		if len(linuxName) > kernel.LinuxIfMaxLength {
@@ -82,6 +82,8 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 				},
 			},
 		})
+		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
+		return conf.GetLinuxConfig().GetInterfaces()[index], nil
 	}
-	return nil
+	return nil, nil
 }

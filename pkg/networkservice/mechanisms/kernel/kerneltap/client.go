@@ -62,7 +62,7 @@ func (k *kernelTapClient) Request(ctx context.Context, request *networkservice.N
 	if err != nil {
 		return nil, err
 	}
-	if err := appendInterfaceConfig(ctx, conn, fmt.Sprintf("client-%s", conn.GetId()), k.fileNameFromInodeNumberFunc); err != nil {
+	if _, err := appendInterfaceConfig(ctx, conn, fmt.Sprintf("client-%s", conn.GetId()), k.fileNameFromInodeNumberFunc); err != nil {
 		return nil, err
 	}
 	return conn, nil
@@ -70,7 +70,7 @@ func (k *kernelTapClient) Request(ctx context.Context, request *networkservice.N
 
 func (k *kernelTapClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
 	rv, err := next.Client(ctx).Close(ctx, conn, opts...)
-	if configErr := appendInterfaceConfig(ctx, conn, fmt.Sprintf("client-%s", conn.GetId()), k.fileNameFromInodeNumberFunc); configErr != nil {
+	if _, configErr := appendInterfaceConfig(ctx, conn, fmt.Sprintf("client-%s", conn.GetId()), k.fileNameFromInodeNumberFunc); configErr != nil {
 		return nil, configErr
 	}
 	return rv, err

@@ -90,6 +90,7 @@ func NewServer(name string, authzServer networkservice.NetworkServiceServer, tok
 			// l2 cross connect (xconnect) between incoming and outgoing connections
 			// TODO - properly support l3xconnect for IP payload
 			l2xconnect.NewClient(),
+			ipaddress.NewClient(),
 			// Preference ordered list of mechanisms we support for outgoing connections
 			memif.NewClient(baseDir),
 			kernel.NewClient(),

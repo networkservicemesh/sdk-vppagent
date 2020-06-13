@@ -27,6 +27,7 @@ import (
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
+	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/kernelctx"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/netnsinode"
 )
 
@@ -48,15 +49,19 @@ func NewTestableServer(fileNameFromInodeNumberFunc func(string) (string, error))
 }
 
 func (k *kernelVethPairServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
-	if err := appendInterfaceConfig(ctx, request.GetConnection(), fmt.Sprintf("server-%s", request.GetConnection().GetId()), k.fileNameFromInodeNumberFunc); err != nil {
+	iface, err := appendInterfaceConfig(ctx, request.GetConnection(), fmt.Sprintf("server-%s", request.GetConnection().GetId()), k.fileNameFromInodeNumberFunc)
+	if err != nil {
 		return nil, err
 	}
+	ctx = kernelctx.WithServerInterface(ctx, iface)
 	return next.Server(ctx).Request(ctx, request)
 }
 
 func (k *kernelVethPairServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
-	if err := appendInterfaceConfig(ctx, conn, fmt.Sprintf("server-%s", conn.GetId()), k.fileNameFromInodeNumberFunc); err != nil {
+	iface, err := appendInterfaceConfig(ctx, conn, fmt.Sprintf("server-%s", conn.GetId()), k.fileNameFromInodeNumberFunc)
+	if err != nil {
 		return nil, err
 	}
+	ctx = kernelctx.WithServerInterface(ctx, iface)
 	return next.Server(ctx).Close(ctx, conn)
 }

@@ -25,6 +25,7 @@ import (
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/kernelctx"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 	"github.com/stretchr/testify/assert"
@@ -122,6 +123,7 @@ func (t *testingServer) Request(ctx context.Context, in *networkservice.NetworkS
 			},
 		},
 	}
+	ctx = kernelctx.WithServerInterface(ctx, config.GetLinuxConfig().GetInterfaces()[1])
 	conn, err := next.Server(ctx).Request(ctx, in)
 	assert.Nil(t, err)
 	assert.NotNil(t, conn.GetContext().GetEthernetContext())

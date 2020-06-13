@@ -29,6 +29,7 @@ import (
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/kernelctx"
 )
 
 func TestServerBasic(t *testing.T) {
@@ -65,9 +66,10 @@ func (t *testingServer) Request(ctx context.Context, in *networkservice.NetworkS
 			targetInterface,
 		},
 	}
+	ctx = kernelctx.WithServerInterface(ctx, config.GetLinuxConfig().GetInterfaces()[0])
 	conn, err := next.Server(ctx).Request(ctx, in)
 	assert.Nil(t, err)
-	assert.Equal(t, targetInterface.PhysAddress, conn.GetContext().GetEthernetContext().GetDstMac())
+	assert.Equal(t, conn.GetContext().GetEthernetContext().GetDstMac(), targetInterface.PhysAddress)
 	return conn, err
 }
 
@@ -82,6 +84,7 @@ func (t *testingServer) Close(ctx context.Context, conn *networkservice.Connecti
 			targetInterface,
 		},
 	}
+	ctx = kernelctx.WithServerInterface(ctx, config.GetLinuxConfig().GetInterfaces()[0])
 	result, err := next.Server(ctx).Close(ctx, conn)
 	assert.Nil(t, err)
 	assert.Equal(t, targetInterface.PhysAddress, conn.GetContext().GetEthernetContext().GetDstMac())

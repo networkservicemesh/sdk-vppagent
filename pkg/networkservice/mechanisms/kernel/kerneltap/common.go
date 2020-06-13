@@ -33,7 +33,7 @@ import (
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
-func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection, name string, fileNameFromInodeNumberFunc func(string) (string, error)) error {
+func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection, name string, fileNameFromInodeNumberFunc func(string) (string, error)) (*linuxinterfaces.Interface, error) {
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		conf := vppagent.Config(ctx)
 		// We append an Interfaces.  Interfaces creates the vpp side of an interface.
@@ -51,7 +51,7 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 		})
 		filepath, err := fileNameFromInodeNumberFunc(mechanism.GetNetNSInode())
 		if err != nil {
-			return err
+			return nil, err
 		}
 		trace.Log(ctx).Info("Found /dev/vhost-net - using tapv2")
 		// We apply configuration to LinuxInterfaces
@@ -72,6 +72,8 @@ func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection,
 				},
 			},
 		})
+		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
+		return conf.GetLinuxConfig().GetInterfaces()[index], nil
 	}
-	return nil
+	return nil, nil
 }
