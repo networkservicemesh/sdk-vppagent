@@ -26,6 +26,7 @@ import (
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/common/mechanisms"
 
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontextkernel"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/metrics"
 
 	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
@@ -42,8 +43,6 @@ import (
 	"github.com/networkservicemesh/sdk/pkg/tools/addressof"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/commit"
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontextkernel/ipcontext/ipaddress"
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontextkernel/ipcontext/routes"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/memif"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/srv6"
@@ -90,7 +89,7 @@ func NewServer(name string, authzServer networkservice.NetworkServiceServer, tok
 			// l2 cross connect (xconnect) between incoming and outgoing connections
 			// TODO - properly support l3xconnect for IP payload
 			l2xconnect.NewClient(),
-			ipaddress.NewClient(),
+			connectioncontextkernel.NewClient(),
 			// Preference ordered list of mechanisms we support for outgoing connections
 			memif.NewClient(baseDir),
 			kernel.NewClient(),
@@ -98,8 +97,7 @@ func NewServer(name string, authzServer networkservice.NetworkServiceServer, tok
 			srv6.NewClient()),
 			clientDialOptions...,
 		),
-		ipaddress.NewServer(),
-		routes.NewServer(),
+		connectioncontextkernel.NewServer(),
 		metrics.NewServer(configurator.NewStatsPollerServiceClient(vppagentCC)),
 		commit.NewServer(vppagentCC),
 	)
