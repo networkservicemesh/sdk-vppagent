@@ -238,8 +238,8 @@ github.com/nats-io/nuid v1.0.1/go.mod h1:19wcPz3Ph3q0Jbyiqsd0kePYG7A95tJPxeL+1OS
 github.com/nats-io/stan.go v0.6.0/go.mod h1:eIcD5bi3pqbHT/xIIvXMwvzXYElgouBvaVRftaE+eac=
 github.com/networkservicemesh/api v0.0.0-20200615142106-b237efde3f7f h1:3hgt685TBhoUN/dg0wS8BZ7PpWXl31vU/ir8nq5hUpA=
 github.com/networkservicemesh/api v0.0.0-20200615142106-b237efde3f7f/go.mod h1:6hH0TfujZVin9W/6rWY7JnmNBNRvUrgXhr1aWyKuQKI=
-github.com/networkservicemesh/sdk v0.0.0-20200615162329-8ab7c333f03e h1:JQnevybzdYJltP3bLxyFPiav1bOgBQcmlw/AVNftAdI=
-github.com/networkservicemesh/sdk v0.0.0-20200615162329-8ab7c333f03e/go.mod h1:bh9QTDWXmKO9M+XYnYCBArLo+lTlUxlPUBpSI02KnII=
+github.com/networkservicemesh/sdk v0.0.0-20200615183025-11723eebcf7c h1:UCGR4LUoT2CQ7HWFa+aSnpVQN5ql9+3TDWLeCa5prNM=
+github.com/networkservicemesh/sdk v0.0.0-20200615183025-11723eebcf7c/go.mod h1:bh9QTDWXmKO9M+XYnYCBArLo+lTlUxlPUBpSI02KnII=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/olekukonko/tablewriter v0.0.1/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
