@@ -236,10 +236,10 @@ github.com/nats-io/nkeys v0.1.0/go.mod h1:xpnFELMwJABBLVhffcfd1MZx6VsNRFpEugbxzi
 github.com/nats-io/nkeys v0.1.3/go.mod h1:xpnFELMwJABBLVhffcfd1MZx6VsNRFpEugbxziKVo7w=
 github.com/nats-io/nuid v1.0.1/go.mod h1:19wcPz3Ph3q0Jbyiqsd0kePYG7A95tJPxeL+1OSON2c=
 github.com/nats-io/stan.go v0.6.0/go.mod h1:eIcD5bi3pqbHT/xIIvXMwvzXYElgouBvaVRftaE+eac=
-github.com/networkservicemesh/api v0.0.0-20200615142106-b237efde3f7f h1:3hgt685TBhoUN/dg0wS8BZ7PpWXl31vU/ir8nq5hUpA=
-github.com/networkservicemesh/api v0.0.0-20200615142106-b237efde3f7f/go.mod h1:6hH0TfujZVin9W/6rWY7JnmNBNRvUrgXhr1aWyKuQKI=
-github.com/networkservicemesh/sdk v0.0.0-20200615183025-11723eebcf7c h1:UCGR4LUoT2CQ7HWFa+aSnpVQN5ql9+3TDWLeCa5prNM=
-github.com/networkservicemesh/sdk v0.0.0-20200615183025-11723eebcf7c/go.mod h1:bh9QTDWXmKO9M+XYnYCBArLo+lTlUxlPUBpSI02KnII=
+github.com/networkservicemesh/api v0.0.0-20200615212848-abc8bcf23ce3 h1:jX3VxxUNCMGLheeXuZ2ccuba1Crma7xS2DvTHMGalx4=
+github.com/networkservicemesh/api v0.0.0-20200615212848-abc8bcf23ce3/go.mod h1:6hH0TfujZVin9W/6rWY7JnmNBNRvUrgXhr1aWyKuQKI=
+github.com/networkservicemesh/sdk v0.0.0-20200615213330-dab84edc2028 h1:akNXvxTOuGwODvx4FCAYe7oozKOBc4nnDyBPxB0J1m4=
+github.com/networkservicemesh/sdk v0.0.0-20200615213330-dab84edc2028/go.mod h1:UaN+oz91yEQe/DSfI/WVr5h9Nsz9TAw5luYaQ0FGwdY=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/olekukonko/tablewriter v0.0.1/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
