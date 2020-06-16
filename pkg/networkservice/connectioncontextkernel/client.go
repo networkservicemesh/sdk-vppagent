@@ -24,6 +24,7 @@ import (
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontextkernel/ipcontext/ipaddress"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontextkernel/ipcontext/routes"
 )
 
 // NewClient provides a NetworkServiceClient that applies the connectioncontext to a kernel interface
@@ -51,6 +52,7 @@ import (
 //
 func NewClient() networkservice.NetworkServiceClient {
 	return chain.NewNetworkServiceClient(
+		routes.NewClient(),
 		ipaddress.NewClient(),
 	)
 }

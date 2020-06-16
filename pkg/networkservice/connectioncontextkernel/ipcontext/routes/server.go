@@ -30,6 +30,7 @@ import (
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/kernelctx"
 )
 
 type setKernelRoute struct{}
@@ -83,6 +84,24 @@ func (s *setKernelRoute) addRoutes(ctx context.Context, conn *networkservice.Con
 					GwAddr:            extractCleanIPAddress(conn.GetContext().GetIpContext().GetDstIpAddr()),
 				})
 			}
+		}
+		_, srcNet, err := net.ParseCIDR(conn.GetContext().GetIpContext().GetSrcIpAddr())
+		if err != nil {
+			return
+		}
+		dstIP, dstNet, err := net.ParseCIDR(conn.GetContext().GetIpContext().GetDstIpAddr())
+		if err != nil {
+			return
+		}
+		if _, ok := duplicatedPrefixes[dstNet.String()]; ok || srcNet.Contains(dstIP) {
+			return
+		}
+		if iface := kernelctx.ServerInterface(ctx); iface != nil && dstIP.IsGlobalUnicast() {
+			vppagent.Config(ctx).GetLinuxConfig().Routes = append(vppagent.Config(ctx).GetLinuxConfig().Routes, &linux.Route{
+				DstNetwork:        dstNet.String(),
+				OutgoingInterface: iface.GetName(),
+				Scope:             linuxl3.Route_LINK,
+			})
 		}
 	}
 }
