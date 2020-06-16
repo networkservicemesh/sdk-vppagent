@@ -59,9 +59,9 @@ func NewServer() networkservice.NetworkServiceServer {
 func (s *setIPKernelServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	iface := kernelctx.ServerInterface(ctx)
 	if iface != nil {
-		dstIP := request.GetConnection().GetContext().GetIpContext().GetDstIpAddr()
-		if dstIP != "" {
-			iface.IpAddresses = append(iface.GetIpAddresses(), dstIP)
+		srcIP := request.GetConnection().GetContext().GetIpContext().GetSrcIpAddr()
+		if srcIP != "" {
+			iface.IpAddresses = append(iface.GetIpAddresses(), srcIP)
 		}
 	}
 	return next.Server(ctx).Request(ctx, request)
@@ -70,9 +70,9 @@ func (s *setIPKernelServer) Request(ctx context.Context, request *networkservice
 func (s *setIPKernelServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	iface := kernelctx.ServerInterface(ctx)
 	if iface != nil {
-		dstIP := conn.GetContext().GetIpContext().GetDstIpAddr()
-		if dstIP != "" {
-			iface.IpAddresses = append(iface.GetIpAddresses(), dstIP)
+		srcIP := conn.GetContext().GetIpContext().GetSrcIpAddr()
+		if srcIP != "" {
+			iface.IpAddresses = append(iface.GetIpAddresses(), srcIP)
 		}
 	}
 	return next.Server(ctx).Close(ctx, conn)

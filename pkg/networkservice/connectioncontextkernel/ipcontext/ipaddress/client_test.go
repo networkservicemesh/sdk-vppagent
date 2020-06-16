@@ -47,7 +47,7 @@ func clientRequest() *networkservice.NetworkServiceRequest {
 			},
 			Context: &networkservice.ConnectionContext{
 				IpContext: &networkservice.IPContext{
-					SrcIpAddr: IPAddress,
+					DstIpAddr: IPAddress,
 				},
 			},
 		},
@@ -65,6 +65,8 @@ func TestSetIPKernelClient(t *testing.T) {
 			conf := vppagent.Config(ctx)
 			numInterfaces := len(conf.GetVppConfig().GetInterfaces())
 			require.Greater(t, numInterfaces, 0)
+			numIps := len(conf.GetLinuxConfig().GetInterfaces()[numInterfaces-1].GetIpAddresses())
+			require.Greater(t, numIps, 0)
 			assert.Equal(t, IPAddress, conf.GetLinuxConfig().GetInterfaces()[numInterfaces-1].GetIpAddresses()[0])
 		}),
 		ipaddress.NewClient(),

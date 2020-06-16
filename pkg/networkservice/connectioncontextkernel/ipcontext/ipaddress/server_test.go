@@ -42,7 +42,7 @@ func serverRequest() *networkservice.NetworkServiceRequest {
 			},
 			Context: &networkservice.ConnectionContext{
 				IpContext: &networkservice.IPContext{
-					DstIpAddr: IPAddress,
+					SrcIpAddr: IPAddress,
 				},
 			},
 		},
