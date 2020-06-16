@@ -73,12 +73,13 @@ func resolveNSByInode(inode uint64) (string, error) {
 	for _, f := range files {
 		name := f.Name()
 		if isDigits(name) {
-			filename = path.Join("/proc", name, "/ns/net")
-			tryInode, err := getInode(filename)
+			fn := path.Join("/proc", name, "/ns/net")
+			tryInode, err := getInode(fn)
 			if err != nil {
 				continue
 			}
 			if tryInode == inode {
+				filename = fn
 				if cmdline, err := getCmdline(name); err == nil && strings.Contains(cmdline, "pause") {
 					return filename, nil
 				}
