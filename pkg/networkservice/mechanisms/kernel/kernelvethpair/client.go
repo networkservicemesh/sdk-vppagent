@@ -70,6 +70,9 @@ func (k *kernelVethPairClient) Request(ctx context.Context, request *networkserv
 
 func (k *kernelVethPairClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
 	rv, err := next.Client(ctx).Close(ctx, conn, opts...)
+	if err != nil {
+		return nil, err
+	}
 	if _, configErr := appendInterfaceConfig(ctx, conn, fmt.Sprintf("client-%s", conn.GetId()), k.fileNameFromInodeNumberFunc); configErr != nil {
 		return nil, configErr
 	}
