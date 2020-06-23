@@ -66,7 +66,7 @@ func (c *commitClient) Close(ctx context.Context, conn *networkservice.Connectio
 	if err != nil {
 		return nil, err
 	}
-	_, err = c.vppagentClient.Update(ctx, &configurator.UpdateRequest{Update: conf}, opts...)
+	_, err = c.vppagentClient.Delete(ctx, &configurator.DeleteRequest{Delete: conf}, opts...)
 	if err != nil {
 		return nil, errors.Wrapf(err, "error sending config to vppagent %s: ", conf)
 	}
