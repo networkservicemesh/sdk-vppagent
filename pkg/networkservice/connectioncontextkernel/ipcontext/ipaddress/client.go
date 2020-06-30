@@ -65,7 +65,7 @@ func (s *setIPKernelClient) Request(ctx context.Context, request *networkservice
 		return nil, err
 	}
 	conf := vppagent.Config(ctx)
-	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
+	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil && len(conf.GetLinuxConfig().GetInterfaces()) > 0 {
 		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
 		dstIP := conn.GetContext().GetIpContext().GetDstIpAddr()
 		if dstIP != "" {
