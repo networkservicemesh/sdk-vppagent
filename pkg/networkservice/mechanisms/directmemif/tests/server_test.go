@@ -55,9 +55,13 @@ func TestServerBasic(t *testing.T) {
 		vppagent.NewServer(),
 		directmemif.NewServerWithNetwork("unix"),
 		memif.NewServer(dir),
-		connect.NewServer(func(ctx context.Context, cc grpc.ClientConnInterface) networkservice.NetworkServiceClient {
-			return memif.NewClient(dir)
-		}, grpc.WithInsecure()),
+		connect.NewServer(
+			context.Background(),
+			func(ctx context.Context, cc grpc.ClientConnInterface) networkservice.NetworkServiceClient {
+				return memif.NewClient(dir)
+			},
+			grpc.WithInsecure(),
+		),
 	)
 	r := &networkservice.NetworkServiceRequest{
 		Connection: &networkservice.Connection{
@@ -88,9 +92,13 @@ func TestServerReRequest(t *testing.T) {
 		vppagent.NewServer(),
 		directmemif.NewServerWithNetwork("unix"),
 		memif.NewServer(dir),
-		connect.NewServer(func(ctx context.Context, cc grpc.ClientConnInterface) networkservice.NetworkServiceClient {
-			return memif.NewClient(dir)
-		}, grpc.WithInsecure()),
+		connect.NewServer(
+			context.Background(),
+			func(ctx context.Context, cc grpc.ClientConnInterface) networkservice.NetworkServiceClient {
+				return memif.NewClient(dir)
+			},
+			grpc.WithInsecure(),
+		),
 	)
 	r := &networkservice.NetworkServiceRequest{
 		Connection: &networkservice.Connection{

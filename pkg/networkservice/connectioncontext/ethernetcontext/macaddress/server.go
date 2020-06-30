@@ -57,7 +57,7 @@ func NewServer() networkservice.NetworkServiceServer {
 
 func (s *setMacVppServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	conf := vppagent.Config(ctx)
-	conn, err := next.Client(ctx).Request(ctx, request)
+	conn, err := next.Server(ctx).Request(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -72,5 +72,5 @@ func (s *setMacVppServer) Close(ctx context.Context, conn *networkservice.Connec
 	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 {
 		conf.GetVppConfig().GetInterfaces()[index].PhysAddress = conn.GetContext().GetEthernetContext().GetDstMac()
 	}
-	return next.Client(ctx).Close(ctx, conn)
+	return next.Server(ctx).Close(ctx, conn)
 }

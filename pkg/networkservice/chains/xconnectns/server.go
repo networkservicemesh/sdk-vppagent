@@ -18,6 +18,7 @@
 package xconnectns
 
 import (
+	"context"
 	"net"
 	"net/url"
 
@@ -64,7 +65,7 @@ type xconnectNSServer struct {
 //             vxlanInitFunc - function to perform initial configuration of vppagent
 //             clientUrl - *url.URL for the talking to the NSMgr
 //             ...clientDialOptions - dialOptions for dialing the NSMgr
-func NewServer(name string, authzServer networkservice.NetworkServiceServer, tokenGenerator token.GeneratorFunc, vppagentCC grpc.ClientConnInterface, baseDir string, tunnelIP net.IP, vxlanInitFunc func(conf *configurator.Config) error, clientURL *url.URL, clientDialOptions ...grpc.DialOption) endpoint.Endpoint {
+func NewServer(ctx context.Context, name string, authzServer networkservice.NetworkServiceServer, tokenGenerator token.GeneratorFunc, vppagentCC grpc.ClientConnInterface, baseDir string, tunnelIP net.IP, vxlanInitFunc func(conf *configurator.Config) error, clientURL *url.URL, clientDialOptions ...grpc.DialOption) endpoint.Endpoint {
 	rv := xconnectNSServer{}
 	rv.Endpoint = endpoint.NewServer(
 		name,
@@ -81,20 +82,22 @@ func NewServer(name string, authzServer networkservice.NetworkServiceServer, tok
 		}),
 		// Statically set the url we use to the unix file socket for the NSMgr
 		clienturl.NewServer(clientURL),
-		connect.NewServer(client.NewClientFactory(
-			name,
-			// What to call onHeal
-			addressof.NetworkServiceClient(adapters.NewServerToClient(rv)),
-			tokenGenerator,
-			// l2 cross connect (xconnect) between incoming and outgoing connections
-			// TODO - properly support l3xconnect for IP payload
-			l2xconnect.NewClient(),
-			connectioncontextkernel.NewClient(),
-			// Preference ordered list of mechanisms we support for outgoing connections
-			memif.NewClient(baseDir),
-			kernel.NewClient(),
-			vxlan.NewClient(tunnelIP, vxlanInitFunc),
-			srv6.NewClient()),
+		connect.NewServer(
+			ctx,
+			client.NewClientFactory(
+				name,
+				// What to call onHeal
+				addressof.NetworkServiceClient(adapters.NewServerToClient(rv)),
+				tokenGenerator,
+				// l2 cross connect (xconnect) between incoming and outgoing connections
+				// TODO - properly support l3xconnect for IP payload
+				l2xconnect.NewClient(),
+				connectioncontextkernel.NewClient(),
+				// Preference ordered list of mechanisms we support for outgoing connections
+				memif.NewClient(baseDir),
+				kernel.NewClient(),
+				vxlan.NewClient(tunnelIP, vxlanInitFunc),
+				srv6.NewClient()),
 			clientDialOptions...,
 		),
 		connectioncontextkernel.NewServer(),
