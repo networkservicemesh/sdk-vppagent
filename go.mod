@@ -7,13 +7,11 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/golang/protobuf v1.4.2
 	github.com/networkservicemesh/api v0.0.0-20200719005259-ed500e834d1e
-	github.com/networkservicemesh/sdk v0.0.0-20200720051532-c865f523d29f
+	github.com/networkservicemesh/sdk v0.0.0-20200720062835-6eb2f15df0de
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.5.0
 	github.com/stretchr/testify v1.5.1
 	go.ligato.io/vpp-agent/v3 v3.1.0
-	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
-	golang.org/x/tools v0.0.0-20200417140056-c07e33ef3290 // indirect
 	google.golang.org/grpc v1.29.1
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
