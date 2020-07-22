@@ -67,7 +67,7 @@ type xconnectNSServer struct {
 //             ...clientDialOptions - dialOptions for dialing the NSMgr
 func NewServer(ctx context.Context, name string, authzServer networkservice.NetworkServiceServer, tokenGenerator token.GeneratorFunc, vppagentCC grpc.ClientConnInterface, baseDir string, tunnelIP net.IP, vxlanInitFunc func(conf *configurator.Config) error, clientURL *url.URL, clientDialOptions ...grpc.DialOption) endpoint.Endpoint {
 	rv := xconnectNSServer{}
-	rv.Endpoint = endpoint.NewServer(
+	rv.Endpoint = endpoint.NewServer(ctx,
 		name,
 		authzServer,
 		tokenGenerator,
