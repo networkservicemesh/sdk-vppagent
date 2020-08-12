@@ -7,7 +7,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/golang/protobuf v1.4.2
 	github.com/networkservicemesh/api v0.0.0-20200804023023-3a49928a16bf
-	github.com/networkservicemesh/sdk v0.0.0-20200812150600-f6b482b4a4f2
+	github.com/networkservicemesh/sdk v0.0.0-20200812152436-83a8c664bd53
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/testify v1.6.1
