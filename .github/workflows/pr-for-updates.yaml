@@ -3,7 +3,7 @@ name: Pull Request on update/* Branch Push
 on:
   push:
     branches:
-      - update/*
+      - update/**
 jobs:
   auto-pull-request:
     name: Pull Request on update/* Branch Push
