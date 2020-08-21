@@ -24,6 +24,21 @@ jobs:
           go-version: 1.13
       - run: |
           go build -race ./...
+
+  # Note: sdk-vppagent is only ever expected to work in Linux, because vppagent only works in Linux.
+  # However, many downstream consumers, as a matter of good hygiene run windows build, and if we
+  # break them here we break them downstream.  So we aren't looking for the building of a functional windows
+  # version of the code... we are looking to make sure build tags are properly applied.
+  build-win:
+    name: build-win
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v1
+        with:
+          go-version: 1.13.4
+      - run: |
+          go build -race  ./...
   test:
     name: test
     runs-on: ubuntu-latest

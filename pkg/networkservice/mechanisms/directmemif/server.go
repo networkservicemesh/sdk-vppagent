@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !windows
+
 // Package directmemif provides server chain element that create connection between two memif interfaces
 package directmemif
 

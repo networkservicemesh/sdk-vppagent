@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !windows
+
 // Package netnsinode provides utility functions for working with Linux Network Namespace Inodes
 package netnsinode
 
