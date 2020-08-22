@@ -16,7 +16,6 @@
 
 // +build !windows
 
-// Package xconnectns provides an Endpoint that implements the cross connect networks service for use as a Forwarder
 package xconnectns
 
 import (
