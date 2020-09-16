@@ -22,7 +22,12 @@ package directmemif
 import (
 	"context"
 
+	interfaces "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/interfaces"
+
 	"github.com/golang/protobuf/ptypes/empty"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/vpp"
+	l2 "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/l2"
+
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 	"github.com/networkservicemesh/sdk/pkg/tools/serialize"
@@ -52,17 +57,17 @@ func NewServerWithNetwork(net string) networkservice.NetworkServiceServer {
 }
 
 func (d *directMemifServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
-	c := vppagent.Config(ctx)
-	l := len(c.GetVppConfig().GetInterfaces())
+	vc := vppagent.Config(ctx).GetVppConfig()
+	l := len(vc.GetInterfaces())
 	if l < 2 {
 		return next.Server(ctx).Request(ctx, request)
 	}
-	client := c.GetVppConfig().GetInterfaces()[l-2]
-	endpoint := c.GetVppConfig().GetInterfaces()[l-1]
+	client := vc.GetInterfaces()[l-2]
+	endpoint := vc.GetInterfaces()[l-1]
 	if client.GetMemif() == nil || endpoint.GetMemif() == nil {
 		return next.Server(ctx).Request(ctx, request)
 	}
-	c.GetVppConfig().Interfaces = c.GetVppConfig().GetInterfaces()[:l-2]
+	vc.Interfaces = vc.GetInterfaces()[:l-2]
 	p, err := proxy.New(client.GetMemif().GetSocketFilename(), endpoint.GetMemif().GetSocketFilename(), d.net, proxy.StopListenerAdapter(func() {
 		d.executor.AsyncExec(func() {
 			delete(d.proxies, request.Connection.Id)
@@ -86,6 +91,7 @@ func (d *directMemifServer) Request(ctx context.Context, request *networkservice
 	if err != nil {
 		return nil, err
 	}
+	d.removeXConnect(vc, client, endpoint)
 	return next.Server(ctx).Request(ctx, request)
 }
 
@@ -108,4 +114,19 @@ func (d *directMemifServer) Close(ctx context.Context, conn *networkservice.Conn
 		}
 	})
 	return next.Server(ctx).Close(ctx, conn)
+}
+
+func (d *directMemifServer) removeXConnect(config *vpp.ConfigData, client, endpoint *interfaces.Interface) {
+	connectPairs := config.GetXconnectPairs()
+	newConnectPairs := make([]*l2.XConnectPair, 0, len(connectPairs)-2)
+
+	for _, pair := range connectPairs {
+		if pair.GetReceiveInterface() == client.GetName() && pair.GetTransmitInterface() == endpoint.GetName() ||
+			pair.GetReceiveInterface() == endpoint.GetName() && pair.GetTransmitInterface() == client.GetName() {
+			continue
+		}
+		newConnectPairs = append(newConnectPairs, pair)
+	}
+
+	config.XconnectPairs = newConnectPairs
 }

@@ -22,10 +22,13 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/networkservicemesh/sdk/pkg/tools/log"
+
 	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
 	vpp_interfaces "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/interfaces"
 
 	"github.com/golang/protobuf/ptypes/empty"
+
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/trace"
@@ -44,10 +47,13 @@ func (s *metricsServer) Request(ctx context.Context, request *networkservice.Net
 	if conf == nil {
 		return nil, errors.New("VPPAgent config is missing")
 	}
+
 	ifaces := conf.GetVppConfig().GetInterfaces()
 	if len(ifaces) == 0 {
-		return nil, errors.New("VPPAgent config should contain at least one interface")
+		log.Entry(ctx).Warn("vppconfig has no interfaces")
+		return next.Server(ctx).Request(ctx, request)
 	}
+
 	index := request.GetConnection().GetPath().GetIndex()
 	conn, err := next.Server(ctx).Request(ctx, request)
 	if err == nil {
