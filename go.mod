@@ -6,8 +6,8 @@ require (
 	github.com/edwarnicke/exechelper v1.0.1
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/golang/protobuf v1.4.2
-	github.com/networkservicemesh/api v0.0.0-20200813164503-9585b38e6772
-	github.com/networkservicemesh/sdk v0.0.0-20200914133830-be06a190bebd
+	github.com/networkservicemesh/api v0.0.0-20200915182332-e5aee3ba99ef
+	github.com/networkservicemesh/sdk v0.0.0-20200916083309-5b64906a352b
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/testify v1.6.1
