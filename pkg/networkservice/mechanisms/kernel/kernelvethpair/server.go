@@ -44,22 +44,26 @@ func NewServer() networkservice.NetworkServiceServer {
 }
 
 func (k *kernelVethPairServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
-	err := k.appendInterfaceConfig(ctx, request.GetConnection())
-	if err != nil {
-		return nil, err
+	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil {
+		err := k.appendInterfaceConfig(ctx, request.GetConnection())
+		if err != nil {
+			return nil, err
+		}
+		linuxIfaces := vppagent.Config(ctx).GetLinuxConfig().GetInterfaces()
+		ctx = kernelctx.WithServerInterface(ctx, linuxIfaces[len(linuxIfaces)-1])
 	}
-	linuxIfaces := vppagent.Config(ctx).GetLinuxConfig().GetInterfaces()
-	ctx = kernelctx.WithServerInterface(ctx, linuxIfaces[len(linuxIfaces)-1])
 	return next.Server(ctx).Request(ctx, request)
 }
 
 func (k *kernelVethPairServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
-	err := k.appendInterfaceConfig(ctx, conn)
-	if err != nil {
-		return nil, err
+	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
+		err := k.appendInterfaceConfig(ctx, conn)
+		if err != nil {
+			return nil, err
+		}
+		linuxIfaces := vppagent.Config(ctx).GetLinuxConfig().GetInterfaces()
+		ctx = kernelctx.WithServerInterface(ctx, linuxIfaces[len(linuxIfaces)-1])
 	}
-	linuxIfaces := vppagent.Config(ctx).GetLinuxConfig().GetInterfaces()
-	ctx = kernelctx.WithServerInterface(ctx, linuxIfaces[len(linuxIfaces)-1])
 	return next.Server(ctx).Close(ctx, conn)
 }
 

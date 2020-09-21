@@ -19,25 +19,23 @@
 package kernel
 
 import (
-	"os"
-
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel/kerneltap"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel/kernelvethpair"
 )
 
 const (
 	// MECHANISM string
-	MECHANISM    = kernel.MECHANISM
-	vnetFilename = "/dev/vhost-net"
+	MECHANISM = kernel.MECHANISM
+	// vnetFilename = "/dev/vhost-net"
 )
 
 // NewClient return a NetworkServiceClient chain element that correctly handles the kernel Mechanism
 func NewClient() networkservice.NetworkServiceClient {
-	if _, err := os.Stat(vnetFilename); err == nil {
-		return kerneltap.NewClient()
-	}
+	// Temporarily commented out until kerneltap is adapted to sendfd/recvfd
+	// if _, err := os.Stat(vnetFilename); err == nil {
+	// 	return kerneltap.NewClient()
+	// }
 	return kernelvethpair.NewClient()
 }

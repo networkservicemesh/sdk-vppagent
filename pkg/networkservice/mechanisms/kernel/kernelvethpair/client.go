@@ -73,14 +73,16 @@ func (k *kernelVethPairClient) Close(ctx context.Context, conn *networkservice.C
 }
 
 func (k *kernelVethPairClient) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) error {
-	netNSURLStr := kernel.ToMechanism(conn.GetMechanism()).GetNetNSURL()
-	netNSURL, err := url.Parse(netNSURLStr)
-	if err != nil {
-		return err
+	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
+		netNSURLStr := mechanism.GetNetNSURL()
+		netNSURL, err := url.Parse(netNSURLStr)
+		if err != nil {
+			return err
+		}
+		if netNSURL.Scheme != fileScheme {
+			return errors.Errorf("kernel.ToMechanism(conn.GetMechanism()).GetNetNSURL() must be of scheme %q: %q", fileScheme, netNSURL)
+		}
+		appendInterfaceConfig(vppagent.Config(ctx), fmt.Sprintf("client-%s", conn.GetId()), kernel.ToMechanism(conn.GetMechanism()).GetInterfaceName(conn), netNSURL.Path)
 	}
-	if netNSURL.Scheme != fileScheme {
-		return errors.Errorf("kernel.ToMechanism(conn.GetMechanism()).GetNetNSURL() must be of scheme %q: %q", fileScheme, netNSURL)
-	}
-	appendInterfaceConfig(vppagent.Config(ctx), fmt.Sprintf("client-%s", conn.GetId()), kernel.ToMechanism(conn.GetMechanism()).GetInterfaceName(conn), netNSURL.Path)
 	return nil
 }
