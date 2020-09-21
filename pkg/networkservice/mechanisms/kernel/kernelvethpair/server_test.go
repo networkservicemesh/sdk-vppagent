@@ -18,16 +18,16 @@ package kernelvethpair_test
 
 import (
 	"io/ioutil"
+	"net/url"
 	"testing"
-
-	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/suite"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/suite"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel/checkkernelmechanism"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/checkvppagentmechanism"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel/kernelvethpair"
 )
 
@@ -38,7 +38,7 @@ func TestKernelTapServer(t *testing.T) {
 		Cls:  cls.LOCAL,
 		Type: kernel.MECHANISM,
 		Parameters: map[string]string{
-			kernel.NetNSInodeKey: "12",
+			kernel.NetNSURL: (&url.URL{Scheme: "file", Path: netnsFileURL}).String(),
 		},
 	}
 	testRequest := &networkservice.NetworkServiceRequest{
@@ -53,8 +53,10 @@ func TestKernelTapServer(t *testing.T) {
 	}
 	kmech := kernel.ToMechanism(mechanism)
 	mechanism.GetParameters()[kernel.InterfaceNameKey] = kmech.GetInterfaceName(testConnToClose)
-	suite.Run(t, checkkernelmechanism.NewServerSuite(
-		kernelvethpair.NewTestableServer,
+	suite.Run(t, checkvppagentmechanism.NewServerSuite(
+		kernelvethpair.NewServer(),
+		kernel.MECHANISM,
+		func(t *testing.T, mechanism *networkservice.Mechanism) {},
 		checkVppAgentConfig("server", testRequest),
 		testRequest,
 		testConnToClose,

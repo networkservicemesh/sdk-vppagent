@@ -31,9 +31,9 @@ import (
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 )
 
-func fileNameFromInodeNumberFunc(inodeNum string) (string, error) {
-	return "/proc/12/ns/net", nil
-}
+const (
+	netnsFileURL = "/proc/12/ns/net"
+)
 
 func checkVppAgentConfig(prefix string, request *networkservice.NetworkServiceRequest) func(*testing.T, *configurator.Config) {
 	return func(t *testing.T, conf *configurator.Config) {
@@ -61,8 +61,7 @@ func checkVppAgentConfig(prefix string, request *networkservice.NetworkServiceRe
 		// Check Pod side netns
 		assert.NotNil(t, linuxInterfaces[1].GetNamespace())
 		assert.Equal(t, linuxnamespace.NetNamespace_FD, linuxInterfaces[1].GetNamespace().GetType())
-		filepath, _ := fileNameFromInodeNumberFunc("")
-		assert.Equal(t, filepath, linuxInterfaces[1].GetNamespace().GetReference())
+		assert.Equal(t, netnsFileURL, linuxInterfaces[1].GetNamespace().GetReference())
 
 		// Check vethpair peers are correct
 		assert.Equal(t, linuxInterfaces[0].GetName(), veths[1].GetPeerIfName())

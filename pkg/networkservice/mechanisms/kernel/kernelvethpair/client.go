@@ -21,13 +21,15 @@ package kernelvethpair
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/netnsinode"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
@@ -35,23 +37,11 @@ import (
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 )
 
-type kernelVethPairClient struct {
-	fileNameFromInodeNumberFunc func(string) (string, error)
-}
+type kernelVethPairClient struct{}
 
 // NewClient provides NetworkServiceClient chain elements that support the kernel Mechanism using veth pairs
 func NewClient() networkservice.NetworkServiceClient {
-	return &kernelVethPairClient{
-		fileNameFromInodeNumberFunc: netnsinode.LinuxNetNSFileName,
-	}
-}
-
-// NewTestableClient - same as NewClient, but allows provision of fileNameFromInodeNumberFunc to allow for testing
-func NewTestableClient(fileNameFromInodeNumberFunc func(string) (string, error)) networkservice.NetworkServiceClient {
-	client := NewClient()
-	rv := client.(*kernelVethPairClient)
-	rv.fileNameFromInodeNumberFunc = fileNameFromInodeNumberFunc
-	return rv
+	return &kernelVethPairClient{}
 }
 
 func (k *kernelVethPairClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
@@ -64,7 +54,7 @@ func (k *kernelVethPairClient) Request(ctx context.Context, request *networkserv
 	if err != nil {
 		return nil, err
 	}
-	if _, err := appendInterfaceConfig(ctx, conn, fmt.Sprintf("client-%s", conn.GetId()), k.fileNameFromInodeNumberFunc); err != nil {
+	if err := k.appendInterfaceConfig(ctx, conn); err != nil {
 		return nil, err
 	}
 	return conn, nil
@@ -75,8 +65,22 @@ func (k *kernelVethPairClient) Close(ctx context.Context, conn *networkservice.C
 	if err != nil {
 		return nil, err
 	}
-	if _, configErr := appendInterfaceConfig(ctx, conn, fmt.Sprintf("client-%s", conn.GetId()), k.fileNameFromInodeNumberFunc); configErr != nil {
-		return nil, configErr
+	err = k.appendInterfaceConfig(ctx, conn)
+	if err != nil {
+		return nil, err
 	}
 	return rv, err
+}
+
+func (k *kernelVethPairClient) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) error {
+	netNSURLStr := kernel.ToMechanism(conn.GetMechanism()).GetNetNSURL()
+	netNSURL, err := url.Parse(netNSURLStr)
+	if err != nil {
+		return err
+	}
+	if netNSURL.Scheme != fileScheme {
+		return errors.Errorf("kernel.ToMechanism(conn.GetMechanism()).GetNetNSURL() must be of scheme %q: %q", fileScheme, netNSURL)
+	}
+	appendInterfaceConfig(vppagent.Config(ctx), fmt.Sprintf("client-%s", conn.GetId()), kernel.ToMechanism(conn.GetMechanism()).GetInterfaceName(conn), netNSURL.Path)
+	return nil
 }

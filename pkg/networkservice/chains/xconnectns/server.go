@@ -16,6 +16,7 @@
 
 // +build !windows
 
+// Package xconnectns provides an Endpoint that implements the cross connect networks service for use as a Forwarder
 package xconnectns
 
 import (
@@ -29,6 +30,7 @@ import (
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/directmemif"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
+	"github.com/networkservicemesh/sdk/pkg/networkservice/common/mechanisms/recvfd"
 	"github.com/networkservicemesh/sdk/pkg/tools/token"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/common/mechanisms"
@@ -75,6 +77,7 @@ func NewServer(ctx context.Context, name string, authzServer networkservice.Netw
 		tokenGenerator,
 		// Make sure we have a fresh empty config for everyone in the chain to use
 		vppagent.NewServer(),
+		recvfd.NewServer(),
 		mechanisms.NewServer(map[string]networkservice.NetworkServiceServer{
 			memif.MECHANISM:  memif.NewServer(baseDir),
 			kernel.MECHANISM: kernel.NewServer(),
@@ -98,7 +101,8 @@ func NewServer(ctx context.Context, name string, authzServer networkservice.Netw
 				memif.NewClient(baseDir),
 				kernel.NewClient(),
 				vxlan.NewClient(tunnelIP, vxlanInitFunc),
-				srv6.NewClient()),
+				srv6.NewClient(),
+				recvfd.NewClient()),
 			clientDialOptions...,
 		),
 		connectioncontextkernel.NewServer(),
