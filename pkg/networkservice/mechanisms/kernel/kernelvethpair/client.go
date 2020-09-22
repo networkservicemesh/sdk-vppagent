@@ -20,16 +20,11 @@ package kernelvethpair
 
 import (
 	"context"
-	"fmt"
-	"net/url"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
-
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
@@ -54,7 +49,7 @@ func (k *kernelVethPairClient) Request(ctx context.Context, request *networkserv
 	if err != nil {
 		return nil, err
 	}
-	if err := k.appendInterfaceConfig(ctx, conn); err != nil {
+	if err := appendInterfaceConfig(ctx, conn, "client"); err != nil {
 		return nil, err
 	}
 	return conn, nil
@@ -65,24 +60,9 @@ func (k *kernelVethPairClient) Close(ctx context.Context, conn *networkservice.C
 	if err != nil {
 		return nil, err
 	}
-	err = k.appendInterfaceConfig(ctx, conn)
+	err = appendInterfaceConfig(ctx, conn, "client")
 	if err != nil {
 		return nil, err
 	}
 	return rv, err
-}
-
-func (k *kernelVethPairClient) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) error {
-	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
-		netNSURLStr := mechanism.GetNetNSURL()
-		netNSURL, err := url.Parse(netNSURLStr)
-		if err != nil {
-			return err
-		}
-		if netNSURL.Scheme != fileScheme {
-			return errors.Errorf("kernel.ToMechanism(conn.GetMechanism()).GetNetNSURL() must be of scheme %q: %q", fileScheme, netNSURL)
-		}
-		appendInterfaceConfig(vppagent.Config(ctx), fmt.Sprintf("client-%s", conn.GetId()), kernel.ToMechanism(conn.GetMechanism()).GetInterfaceName(conn), netNSURL.Path)
-	}
-	return nil
 }

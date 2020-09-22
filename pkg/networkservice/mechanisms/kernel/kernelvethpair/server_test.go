@@ -31,7 +31,7 @@ import (
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel/kernelvethpair"
 )
 
-func TestKernelTapServer(t *testing.T) {
+func TestKernelVethPairServer(t *testing.T) {
 	// Turn off log output
 	logrus.SetOutput(ioutil.Discard)
 	mechanism := &networkservice.Mechanism{

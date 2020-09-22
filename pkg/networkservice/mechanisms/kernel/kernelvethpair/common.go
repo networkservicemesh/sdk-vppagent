@@ -17,18 +17,41 @@
 package kernelvethpair
 
 import (
+	"context"
+	"fmt"
+	"net/url"
+
+	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
+	"github.com/pkg/errors"
 	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
 	linuxinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/linux/interfaces"
 	linuxnamespace "go.ligato.io/vpp-agent/v3/proto/ligato/linux/namespace"
 	vppinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/interfaces"
+
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
 const (
 	fileScheme = "file"
 )
 
-func appendInterfaceConfig(conf *configurator.Config, name, ifaceName, netnsFilename string) {
+func appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection, prefix string) error {
+	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
+		netNSURLStr := mechanism.GetNetNSURL()
+		netNSURL, err := url.Parse(netNSURLStr)
+		if err != nil {
+			return err
+		}
+		if netNSURL.Scheme != fileScheme {
+			return errors.Errorf("kernel.ToMechanism(conn.GetMechanism()).GetNetNSURL() must be of scheme %q: %q", fileScheme, netNSURL)
+		}
+		vppagentConfigTemplate(vppagent.Config(ctx), fmt.Sprintf("%s-%s", prefix, conn.GetId()), kernel.ToMechanism(conn.GetMechanism()).GetInterfaceName(conn), netNSURL.Path)
+	}
+	return nil
+}
+
+func vppagentConfigTemplate(conf *configurator.Config, name, ifaceName, netnsFilename string) {
 	conf.GetLinuxConfig().Interfaces = append(conf.GetLinuxConfig().Interfaces,
 		&linuxinterfaces.Interface{
 			Name:       name + "-veth",

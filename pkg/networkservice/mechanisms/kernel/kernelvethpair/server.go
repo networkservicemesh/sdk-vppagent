@@ -21,12 +21,9 @@ package kernelvethpair
 
 import (
 	"context"
-	"fmt"
-	"net/url"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
-	"github.com/pkg/errors"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
@@ -45,7 +42,7 @@ func NewServer() networkservice.NetworkServiceServer {
 
 func (k *kernelVethPairServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
 	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil {
-		err := k.appendInterfaceConfig(ctx, request.GetConnection())
+		err := appendInterfaceConfig(ctx, request.GetConnection(), "server")
 		if err != nil {
 			return nil, err
 		}
@@ -57,7 +54,7 @@ func (k *kernelVethPairServer) Request(ctx context.Context, request *networkserv
 
 func (k *kernelVethPairServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
 	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
-		err := k.appendInterfaceConfig(ctx, conn)
+		err := appendInterfaceConfig(ctx, conn, "server")
 		if err != nil {
 			return nil, err
 		}
@@ -65,17 +62,4 @@ func (k *kernelVethPairServer) Close(ctx context.Context, conn *networkservice.C
 		ctx = kernelctx.WithServerInterface(ctx, linuxIfaces[len(linuxIfaces)-1])
 	}
 	return next.Server(ctx).Close(ctx, conn)
-}
-
-func (k *kernelVethPairServer) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) error {
-	netNSURLStr := kernel.ToMechanism(conn.GetMechanism()).GetNetNSURL()
-	netNSURL, err := url.Parse(netNSURLStr)
-	if err != nil {
-		return err
-	}
-	if netNSURL.Scheme != fileScheme {
-		return errors.Errorf("kernel.ToMechanism(conn.GetMechanism()).GetNetNSURL() must be of scheme %q: %q", fileScheme, netNSURL)
-	}
-	appendInterfaceConfig(vppagent.Config(ctx), fmt.Sprintf("server-%s", conn.GetId()), kernel.ToMechanism(conn.GetMechanism()).GetInterfaceName(conn), netNSURL.Path)
-	return nil
 }
