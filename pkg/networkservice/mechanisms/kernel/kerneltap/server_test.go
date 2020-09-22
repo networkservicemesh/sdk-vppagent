@@ -18,6 +18,7 @@ package kerneltap_test
 
 import (
 	"io/ioutil"
+	"net/url"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -27,20 +28,18 @@ import (
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel/checkkernelmechanism"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/checkvppagentmechanism"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel/kerneltap"
 )
 
 func TestKernelTapServer(t *testing.T) {
 	// Turn off log output
 	logrus.SetOutput(ioutil.Discard)
-	// Turn off log output
-	logrus.SetOutput(ioutil.Discard)
 	mechanism := &networkservice.Mechanism{
 		Cls:  cls.LOCAL,
 		Type: kernel.MECHANISM,
 		Parameters: map[string]string{
-			kernel.NetNSInodeKey: "12",
+			kernel.NetNSURL: (&url.URL{Scheme: "file", Path: netnsFileURL}).String(),
 		},
 	}
 	testRequest := &networkservice.NetworkServiceRequest{
@@ -55,8 +54,10 @@ func TestKernelTapServer(t *testing.T) {
 	}
 	kmech := kernel.ToMechanism(mechanism)
 	mechanism.GetParameters()[kernel.InterfaceNameKey] = kmech.GetInterfaceName(testConnToClose)
-	suite.Run(t, checkkernelmechanism.NewServerSuite(
-		kerneltap.NewTestableServer,
+	suite.Run(t, checkvppagentmechanism.NewServerSuite(
+		kerneltap.NewServer(),
+		kernel.MECHANISM,
+		func(t *testing.T, mechanism *networkservice.Mechanism) {},
 		checkVppAgentConfig("server", testRequest),
 		testRequest,
 		testConnToClose,

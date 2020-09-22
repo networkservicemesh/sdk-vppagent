@@ -19,9 +19,11 @@ package ipaddress_test
 import (
 	"context"
 	"io/ioutil"
+	"net/url"
 	"testing"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/chain"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/utils/inject/injecterror"
@@ -38,7 +40,11 @@ func serverRequest() *networkservice.NetworkServiceRequest {
 	return &networkservice.NetworkServiceRequest{
 		Connection: &networkservice.Connection{
 			Mechanism: &networkservice.Mechanism{
+				Cls:  cls.LOCAL,
 				Type: kernel.MECHANISM,
+				Parameters: map[string]string{
+					kernel.NetNSURL: (&url.URL{Scheme: "file", Path: netnsFileURL}).String(),
+				},
 			},
 			Context: &networkservice.ConnectionContext{
 				IpContext: &networkservice.IPContext{
@@ -52,7 +58,7 @@ func serverRequest() *networkservice.NetworkServiceRequest {
 func TestSetIPKernelServer_Request(t *testing.T) {
 	logrus.SetOutput(ioutil.Discard)
 	server := chain.NewNetworkServiceServer(
-		kerneltap.NewTestableServer(fileInodeToFilename),
+		kerneltap.NewServer(),
 		ipaddress.NewServer(),
 	)
 	ctx := vppagent.WithConfig(context.Background())
@@ -72,7 +78,7 @@ func TestSetIPKernelServer_Request(t *testing.T) {
 func TestSetIPKernelServer_Close(t *testing.T) {
 	logrus.SetOutput(ioutil.Discard)
 	server := chain.NewNetworkServiceServer(
-		kerneltap.NewTestableServer(fileInodeToFilename),
+		kerneltap.NewServer(),
 		ipaddress.NewServer(),
 	)
 	ctx := vppagent.WithConfig(context.Background())

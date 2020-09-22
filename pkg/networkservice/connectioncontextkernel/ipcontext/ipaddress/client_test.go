@@ -19,9 +19,11 @@ package ipaddress_test
 import (
 	"context"
 	"io/ioutil"
+	"net/url"
 	"testing"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/chain"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/utils/checks/checkcontext"
@@ -37,13 +39,20 @@ import (
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
-const IPAddress = "1.1.1.1"
+const (
+	IPAddress    = "1.1.1.1"
+	netnsFileURL = "/proc/12/ns/net"
+)
 
 func clientRequest() *networkservice.NetworkServiceRequest {
 	return &networkservice.NetworkServiceRequest{
 		Connection: &networkservice.Connection{
 			Mechanism: &networkservice.Mechanism{
+				Cls:  cls.LOCAL,
 				Type: kernel.MECHANISM,
+				Parameters: map[string]string{
+					kernel.NetNSURL: (&url.URL{Scheme: "file", Path: netnsFileURL}).String(),
+				},
 			},
 			Context: &networkservice.ConnectionContext{
 				IpContext: &networkservice.IPContext{
@@ -52,10 +61,6 @@ func clientRequest() *networkservice.NetworkServiceRequest {
 			},
 		},
 	}
-}
-
-func fileInodeToFilename(inode string) (s string, err error) {
-	return "12", nil
 }
 
 func TestSetIPKernelClient(t *testing.T) {
@@ -75,7 +80,7 @@ func TestSetIPKernelClient(t *testing.T) {
 			expectedConf := vppagent.Config(vppagent.WithConfig(context.Background()))
 			assert.Equal(t, expectedConf, conf)
 		}),
-		kerneltap.NewTestableClient(fileInodeToFilename),
+		kerneltap.NewClient(),
 	)
 	conn, err := client.Request(vppagent.WithConfig(context.Background()), clientRequest())
 	assert.NotNil(t, conn)

@@ -25,44 +25,41 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/kernelctx"
-	"github.com/networkservicemesh/sdk-vppagent/pkg/tools/netnsinode"
 )
 
-type kernelTapServer struct {
-	fileNameFromInodeNumberFunc func(string) (string, error)
-}
+type kernelTapServer struct{}
 
 // NewServer provides NetworkServiceServer chain elements that support the kernel Mechanism using tapv2
 func NewServer() networkservice.NetworkServiceServer {
-	return &kernelTapServer{fileNameFromInodeNumberFunc: netnsinode.LinuxNetNSFileName}
-}
-
-// NewTestableServer - same as NewServer, but allows provision of fileNameFromInodeNumberFunc to allow for testing
-func NewTestableServer(fileNameFromInodeNumberFunc func(string) (string, error)) networkservice.NetworkServiceServer {
-	server := NewServer()
-	rv := server.(*kernelTapServer)
-	rv.fileNameFromInodeNumberFunc = fileNameFromInodeNumberFunc
-	return rv
+	return &kernelTapServer{}
 }
 
 func (k *kernelTapServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
-	iface, err := appendInterfaceConfig(ctx, request.GetConnection(), fmt.Sprintf("server-%s", request.GetConnection().GetId()), k.fileNameFromInodeNumberFunc)
-	if err != nil {
-		return nil, err
+	if mechanism := kernel.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil {
+		err := appendInterfaceConfig(ctx, request.GetConnection(), fmt.Sprintf("server-%s", request.GetConnection().GetId()))
+		if err != nil {
+			return nil, err
+		}
+		linuxIfaces := vppagent.Config(ctx).GetLinuxConfig().GetInterfaces()
+		ctx = kernelctx.WithServerInterface(ctx, linuxIfaces[len(linuxIfaces)-1])
 	}
-	ctx = kernelctx.WithServerInterface(ctx, iface)
 	return next.Server(ctx).Request(ctx, request)
 }
 
 func (k *kernelTapServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
-	iface, err := appendInterfaceConfig(ctx, conn, fmt.Sprintf("server-%s", conn.GetId()), k.fileNameFromInodeNumberFunc)
-	if err != nil {
-		return nil, err
+	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
+		err := appendInterfaceConfig(ctx, conn, fmt.Sprintf("server-%s", conn.GetId()))
+		if err != nil {
+			return nil, err
+		}
+		linuxIfaces := vppagent.Config(ctx).GetLinuxConfig().GetInterfaces()
+		ctx = kernelctx.WithServerInterface(ctx, linuxIfaces[len(linuxIfaces)-1])
 	}
-	ctx = kernelctx.WithServerInterface(ctx, iface)
 	return next.Server(ctx).Close(ctx, conn)
 }

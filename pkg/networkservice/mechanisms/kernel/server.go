@@ -21,16 +21,18 @@
 package kernel
 
 import (
+	"os"
+
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel/kerneltap"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel/kernelvethpair"
 )
 
 // NewServer return a NetworkServiceServer chain element that correctly handles the kernel Mechanism
 func NewServer() networkservice.NetworkServiceServer {
-	// Temporarily commented out until kerneltap is adapted to sendfd/recvfd
-	// if _, err := os.Stat(vnetFilename); err == nil {
-	// 	return kerneltap.NewServer()
-	// }
+	if _, err := os.Stat(vnetFilename); err == nil {
+		return kerneltap.NewServer()
+	}
 	return kernelvethpair.NewServer()
 }

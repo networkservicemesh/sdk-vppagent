@@ -30,13 +30,9 @@ import (
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 )
 
-func ownInodeFunc() (uint64, error) {
-	return 12, nil
-}
-
-func fileNameFromInodeNumberFunc(inodeNum string) (string, error) {
-	return "/proc/12/ns/net", nil
-}
+const (
+	netnsFileURL = "/proc/12/ns/net"
+)
 
 func checkVppAgentConfig(prefix string, request *networkservice.NetworkServiceRequest) func(*testing.T, *configurator.Config) {
 	return func(t *testing.T, conf *configurator.Config) {
@@ -56,9 +52,7 @@ func checkVppAgentConfig(prefix string, request *networkservice.NetworkServiceRe
 		assert.Equal(t, vppInterface.GetName(), linuxInterface.GetTap().GetVppTapIfName())
 		assert.NotNil(t, linuxInterface.GetNamespace())
 		assert.Equal(t, linuxnamespace.NetNamespace_FD, linuxInterface.GetNamespace().GetType())
-		ownInode, _ := ownInodeFunc()
-		filepath, _ := fileNameFromInodeNumberFunc(string(ownInode))
-		assert.Equal(t, filepath, linuxInterface.GetNamespace().GetReference())
+		assert.Equal(t, netnsFileURL, linuxInterface.GetNamespace().GetReference())
 		kmech := kernel.ToMechanism(&networkservice.Mechanism{
 			Cls:  cls.LOCAL,
 			Type: kernel.MECHANISM,

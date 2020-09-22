@@ -37,6 +37,7 @@ import (
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/chain"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/utils/checks/checkcontext"
 	"github.com/networkservicemesh/sdk/pkg/tools/grpcutils"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
 	"google.golang.org/grpc"
@@ -122,6 +123,7 @@ func tokenGenerator(peerAuthInfo credentials.AuthInfo) (tokenValue string, expir
 }
 
 func TestDirectMemifCase(t *testing.T) {
+	logrus.SetOutput(ioutil.Discard)
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(time.Second*2))
 	defer cancel()
 
