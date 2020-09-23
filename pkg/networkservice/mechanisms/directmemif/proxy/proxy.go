@@ -20,8 +20,10 @@
 package proxy
 
 import (
+	"fmt"
 	"net"
 	"os"
+	"sync"
 	"syscall"
 
 	"github.com/pkg/errors"
@@ -30,6 +32,10 @@ import (
 )
 
 const (
+	// RxBytes is a total number of bytes received from target
+	rxBytes = "rx_bytes"
+	// TxBytes is a total number of bytes transmitted to target
+	txBytes    = "tx_bytes"
 	bufferSize = 128
 	cmsgSize   = 24
 )
@@ -53,9 +59,11 @@ type Listener interface {
 type Proxy interface {
 	Stop() error
 	Start() error
+	Metrics() map[string]string
 }
 
 type proxyImpl struct {
+	lock           sync.RWMutex
 	listener       Listener
 	network        string
 	stopCh         chan struct{}
@@ -63,6 +71,7 @@ type proxyImpl struct {
 	sourceListener *net.UnixListener
 	source         *net.UnixAddr
 	target         *net.UnixAddr
+	metrics        map[string]uint
 }
 
 type connectionResult struct {
@@ -93,6 +102,10 @@ func New(sourceSocket, targetSocket, network string, listener Listener) (Proxy, 
 		target:   target,
 		network:  network,
 		listener: listener,
+		metrics: map[string]uint{
+			rxBytes: 0,
+			txBytes: 0,
+		},
 	}, nil
 }
 
@@ -140,6 +153,19 @@ func (p *proxyImpl) Stop() error {
 	return err
 }
 
+// Metrics returns direct memif metrics' map representation
+func (p *proxyImpl) Metrics() map[string]string {
+	p.lock.RLock()
+	defer p.lock.RUnlock()
+
+	result := make(map[string]string)
+	for k, v := range p.metrics {
+		result[k] = fmt.Sprint(v)
+	}
+
+	return result
+}
+
 func (p *proxyImpl) proxy() error {
 	sourceConn, err := acceptConnectionAsync(p.sourceListener, p.stopCh)
 	if err != nil {
@@ -183,8 +209,8 @@ func (p *proxyImpl) proxy() error {
 	sourceStopCh := make(chan struct{})
 	targetStopCh := make(chan struct{})
 
-	go transfer(sourceFd, targetFd, sourceStopCh)
-	go transfer(targetFd, sourceFd, targetStopCh)
+	go p.transfer(sourceFd, targetFd, sourceStopCh, txBytes)
+	go p.transfer(targetFd, sourceFd, targetStopCh, rxBytes)
 
 	select {
 	case <-p.stopCh:
@@ -208,7 +234,9 @@ func connectToTargetAsync(target *net.UnixAddr, network string, stopCh <-chan st
 			conn: conn,
 			err:  err,
 		}
-		logrus.Info("Connected to target socket")
+		if err == nil {
+			logrus.Info("Connected to target socket")
+		}
 	}()
 	for {
 		select {
@@ -244,14 +272,14 @@ func acceptConnectionAsync(listener *net.UnixListener, stopCh <-chan struct{}) (
 	}
 }
 
-func transfer(fromFd, toFd int, stopCh chan struct{}) {
+func (p *proxyImpl) transfer(fromFd, toFd int, stopCh chan struct{}, metricsKey string) {
 	dataBuffer := make([]byte, bufferSize)
 	cmsgBuffer := make([]byte, cmsgSize)
 	defer close(stopCh)
 	for {
 		select {
 		case <-stopCh:
-			logrus.Infof("Transfer from %v to %v has benn stopped", fromFd, toFd)
+			logrus.Infof("Transfer from %v to %v has been stopped", fromFd, toFd)
 			return
 		default:
 			dataN, cmsgN, _, _, err := syscall.Recvmsg(fromFd, dataBuffer, cmsgBuffer, 0)
@@ -273,6 +301,10 @@ func transfer(fromFd, toFd int, stopCh chan struct{}) {
 				return
 			}
 			logrus.Infof("Send message to %v", toFd)
+
+			p.lock.Lock()
+			p.metrics[metricsKey] += uint(dataN)
+			p.lock.Unlock()
 		}
 	}
 }

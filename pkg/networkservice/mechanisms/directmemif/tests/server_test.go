@@ -26,6 +26,10 @@ import (
 	"testing"
 	"time"
 
+	l2 "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/l2"
+
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/utils/checks/testinterfaceappender"
+
 	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/directmemif"
@@ -39,11 +43,14 @@ import (
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 
-	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 	"github.com/stretchr/testify/require"
+
+	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/memif"
 )
+
+const socketName = "test.sock"
 
 func TestServerBasic(t *testing.T) {
 	dir, err := ioutil.TempDir(os.TempDir(), t.Name())
@@ -63,23 +70,13 @@ func TestServerBasic(t *testing.T) {
 			grpc.WithInsecure(),
 		),
 	)
-	r := &networkservice.NetworkServiceRequest{
-		Connection: &networkservice.Connection{
-			Id: "1",
-			Mechanism: &networkservice.Mechanism{
-				Cls:  cls.LOCAL,
-				Type: memif_mechanisms.MECHANISM,
-				Parameters: map[string]string{
-					memif_mechanisms.SocketFilename: "test.sock",
-				},
-			},
-		},
-	}
+	r := request()
+
 	_, err = s.Request(clienturl.WithClientURL(context.Background(), &url.URL{}), r)
 	require.Nil(t, err)
 	_, err = s.Close(clienturl.WithClientURL(context.Background(), &url.URL{}), r.Connection)
 	require.Nil(t, err)
-	checkThatProxyHasStopped(t, path.Join(dir, "test.sock"))
+	checkThatProxyHasStopped(t, path.Join(dir, socketName))
 }
 
 func TestServerReRequest(t *testing.T) {
@@ -100,25 +97,77 @@ func TestServerReRequest(t *testing.T) {
 			grpc.WithInsecure(),
 		),
 	)
-	r := &networkservice.NetworkServiceRequest{
-		Connection: &networkservice.Connection{
-			Id: "1",
-			Mechanism: &networkservice.Mechanism{
-				Cls:  cls.LOCAL,
-				Type: memif_mechanisms.MECHANISM,
-				Parameters: map[string]string{
-					memif_mechanisms.SocketFilename: "test.sock",
-				},
-			},
-		},
-	}
+	r := request()
+
 	_, err = s.Request(clienturl.WithClientURL(context.Background(), &url.URL{}), r)
 	require.Nil(t, err)
 	_, err = s.Request(clienturl.WithClientURL(context.Background(), &url.URL{}), r)
 	require.Nil(t, err)
 	_, err = s.Close(clienturl.WithClientURL(context.Background(), &url.URL{}), r.Connection)
 	require.Nil(t, err)
-	checkThatProxyHasStopped(t, path.Join(dir, "test.sock"))
+	checkThatProxyHasStopped(t, path.Join(dir, socketName))
+}
+
+func TestServerShouldWriteMetrics(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	dir, err := ioutil.TempDir(os.TempDir(), t.Name())
+	require.Nil(t, err)
+
+	defer func() {
+		_ = os.RemoveAll(dir)
+	}()
+
+	ctx = vppagent.WithConfig(ctx)
+	config := vppagent.Config(ctx)
+	config.VppConfig.XconnectPairs = make([]*l2.XConnectPair, 2)
+
+	s := next.NewNetworkServiceServer(
+		memif.NewServer(dir),
+		connect.NewServer(
+			ctx,
+			func(ctx context.Context, cc grpc.ClientConnInterface) networkservice.NetworkServiceClient {
+				return testinterfaceappender.NewClient()
+			},
+			grpc.WithInsecure(),
+		),
+		directmemif.NewServerWithNetwork("unix"),
+	)
+
+	r := request()
+	r.Connection.Path = &networkservice.Path{
+		Index: 0,
+		PathSegments: []*networkservice.PathSegment{
+			{
+				Name: "Test",
+			},
+		},
+	}
+
+	conn, err := s.Request(clienturl.WithClientURL(ctx, &url.URL{}), r)
+	require.Nil(t, err)
+	metrics := conn.Path.PathSegments[conn.Path.Index].Metrics
+	require.NotNil(t, metrics)
+	require.Equal(t, 2, len(metrics))
+	_, err = s.Close(clienturl.WithClientURL(ctx, &url.URL{}), r.Connection)
+	require.Nil(t, err)
+	checkThatProxyHasStopped(t, path.Join(dir, socketName))
+}
+
+func request() *networkservice.NetworkServiceRequest {
+	return &networkservice.NetworkServiceRequest{
+		Connection: &networkservice.Connection{
+			Id: "1",
+			Mechanism: &networkservice.Mechanism{
+				Cls:  cls.LOCAL,
+				Type: memif_mechanisms.MECHANISM,
+				Parameters: map[string]string{
+					memif_mechanisms.SocketFilename: socketName,
+				},
+			},
+		},
+	}
 }
 
 func checkThatProxyHasStopped(t *testing.T, socketPath string) {

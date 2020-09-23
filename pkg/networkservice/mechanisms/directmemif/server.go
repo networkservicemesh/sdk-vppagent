@@ -68,23 +68,27 @@ func (d *directMemifServer) Request(ctx context.Context, request *networkservice
 		return next.Server(ctx).Request(ctx, request)
 	}
 	vc.Interfaces = vc.GetInterfaces()[:l-2]
-	p, err := proxy.New(client.GetMemif().GetSocketFilename(), endpoint.GetMemif().GetSocketFilename(), d.net, proxy.StopListenerAdapter(func() {
-		d.executor.AsyncExec(func() {
-			delete(d.proxies, request.Connection.Id)
-		})
-	}))
+
+	connectionID := request.GetConnection().GetId()
+	p, err := proxy.New(client.GetMemif().GetSocketFilename(), endpoint.GetMemif().GetSocketFilename(), d.net,
+		proxy.StopListenerAdapter(func() {
+			d.executor.AsyncExec(func() {
+				delete(d.proxies, connectionID)
+			})
+		}))
 	if err != nil {
 		return nil, err
 	}
+
 	d.executor.AsyncExec(func() {
-		prev := d.proxies[request.GetConnection().GetId()]
+		prev := d.proxies[connectionID]
 		if prev != nil {
 			_ = prev.Stop()
 			d.executor.AsyncExec(func() {
-				d.proxies[request.GetConnection().GetId()] = p
+				d.proxies[connectionID] = p
 			})
 		} else {
-			d.proxies[request.GetConnection().GetId()] = p
+			d.proxies[connectionID] = p
 		}
 	})
 	err = p.Start()
@@ -92,7 +96,15 @@ func (d *directMemifServer) Request(ctx context.Context, request *networkservice
 		return nil, err
 	}
 	d.removeXConnect(vc, client, endpoint)
-	return next.Server(ctx).Request(ctx, request)
+
+	con, err := next.Server(ctx).Request(ctx, request)
+	if err == nil {
+		<-d.executor.AsyncExec(func() {
+			path := request.GetConnection().GetPath()
+			path.GetPathSegments()[path.GetIndex()].Metrics = d.proxies[connectionID].Metrics()
+		})
+	}
+	return con, err
 }
 
 func (d *directMemifServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
