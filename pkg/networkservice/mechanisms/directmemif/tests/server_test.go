@@ -26,6 +26,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/networkservicemesh/sdk/pkg/tools/clienturlctx"
 	l2 "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/l2"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/utils/checks/testinterfaceappender"
@@ -33,8 +34,6 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/directmemif"
-
-	"github.com/networkservicemesh/sdk/pkg/networkservice/common/clienturl"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
@@ -72,9 +71,9 @@ func TestServerBasic(t *testing.T) {
 	)
 	r := request()
 
-	_, err = s.Request(clienturl.WithClientURL(context.Background(), &url.URL{}), r)
+	_, err = s.Request(clienturlctx.WithClientURL(context.Background(), &url.URL{}), r)
 	require.Nil(t, err)
-	_, err = s.Close(clienturl.WithClientURL(context.Background(), &url.URL{}), r.Connection)
+	_, err = s.Close(clienturlctx.WithClientURL(context.Background(), &url.URL{}), r.Connection)
 	require.Nil(t, err)
 	checkThatProxyHasStopped(t, path.Join(dir, socketName))
 }
@@ -99,11 +98,11 @@ func TestServerReRequest(t *testing.T) {
 	)
 	r := request()
 
-	_, err = s.Request(clienturl.WithClientURL(context.Background(), &url.URL{}), r)
+	_, err = s.Request(clienturlctx.WithClientURL(context.Background(), &url.URL{}), r)
 	require.Nil(t, err)
-	_, err = s.Request(clienturl.WithClientURL(context.Background(), &url.URL{}), r)
+	_, err = s.Request(clienturlctx.WithClientURL(context.Background(), &url.URL{}), r)
 	require.Nil(t, err)
-	_, err = s.Close(clienturl.WithClientURL(context.Background(), &url.URL{}), r.Connection)
+	_, err = s.Close(clienturlctx.WithClientURL(context.Background(), &url.URL{}), r.Connection)
 	require.Nil(t, err)
 	checkThatProxyHasStopped(t, path.Join(dir, socketName))
 }
@@ -145,12 +144,12 @@ func TestServerShouldWriteMetrics(t *testing.T) {
 		},
 	}
 
-	conn, err := s.Request(clienturl.WithClientURL(ctx, &url.URL{}), r)
+	conn, err := s.Request(clienturlctx.WithClientURL(ctx, &url.URL{}), r)
 	require.Nil(t, err)
 	metrics := conn.Path.PathSegments[conn.Path.Index].Metrics
 	require.NotNil(t, metrics)
 	require.Equal(t, 2, len(metrics))
-	_, err = s.Close(clienturl.WithClientURL(ctx, &url.URL{}), r.Connection)
+	_, err = s.Close(clienturlctx.WithClientURL(ctx, &url.URL{}), r.Connection)
 	require.Nil(t, err)
 	checkThatProxyHasStopped(t, path.Join(dir, socketName))
 }
