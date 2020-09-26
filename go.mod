@@ -5,8 +5,8 @@ go 1.13
 require (
 	github.com/edwarnicke/exechelper v1.0.1
 	github.com/golang/protobuf v1.4.2
-	github.com/networkservicemesh/api v0.0.0-20200923231758-e91e69f22959
-	github.com/networkservicemesh/sdk v0.0.0-20200924131753-9070883d6be6
+	github.com/networkservicemesh/api v0.0.0-20200925211324-37a4e74e139d
+	github.com/networkservicemesh/sdk v0.0.0-20200926162609-3d98daaa1228
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/testify v1.6.1
