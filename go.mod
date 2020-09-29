@@ -6,7 +6,7 @@ require (
 	github.com/edwarnicke/exechelper v1.0.1
 	github.com/golang/protobuf v1.4.2
 	github.com/networkservicemesh/api v0.0.0-20200925211324-37a4e74e139d
-	github.com/networkservicemesh/sdk v0.0.0-20200929013147-b87d31d441a0
+	github.com/networkservicemesh/sdk v0.0.0-20200929040528-e3a022b7a969
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/testify v1.6.1
