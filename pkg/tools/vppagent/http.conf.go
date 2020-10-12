@@ -19,6 +19,6 @@ package vppagent
 const (
 	vppAgentHTTPConfFilename = vppAgentConfDir + "http.conf"
 	vppAgentHTTPConfContents = `# Documented here: https://docs.ligato.io/en/latest/user-guide/config-files/#rest
-Endpoint: "localhost:9191"
+Endpoint: "localhost:%d"
 `
 )

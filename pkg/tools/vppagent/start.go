@@ -20,14 +20,16 @@ package vppagent
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 
 	"google.golang.org/grpc"
 
 	"github.com/edwarnicke/exechelper"
-	"github.com/networkservicemesh/sdk/pkg/tools/errctx"
+
 	"github.com/networkservicemesh/sdk/pkg/tools/log"
 )
 
@@ -35,16 +37,25 @@ import (
 // grpc.ClientConnInterface, and an error chan that will receive the error from the lifecycle of the vppagent and vpp
 // and be closed when both have exited.
 // Stdout and Stderr for the vppagent and vpp are set to be log.Entry(ctx).Writer().
-func StartAndDialContext(ctx context.Context, dialOptions ...grpc.DialOption) (vppagentCC grpc.ClientConnInterface, errCh chan error) {
-	errCh = make(chan error, 4)
-	ctx = errctx.WithErr(ctx)
-	if err := writeDefaultConfigFiles(ctx); err != nil {
+func StartAndDialContext(ctx context.Context, opts ...Option) (vppagentCC grpc.ClientConnInterface, errCh chan error) {
+	errCh = make(chan error, 5)
+
+	o := &option{
+		rootDir:  DefaultRootDir,
+		grpcPort: DefaultGrpcPort,
+		httpPort: DefaultHTTPPort,
+	}
+	for _, opt := range opts {
+		opt(o)
+	}
+
+	if err := writeDefaultConfigFiles(ctx, o); err != nil {
 		errCh <- err
 		close(errCh)
 		return nil, errCh
 	}
 	logWriter := log.Entry(ctx).WithField("cmd", "vpp").Writer()
-	vppErrCh := exechelper.Start("vpp -c "+vppConfFilename,
+	vppErrCh := exechelper.Start("vpp -c "+filepath.Join(o.rootDir, vppConfFilename),
 		exechelper.WithContext(ctx),
 		exechelper.WithStdout(logWriter),
 		exechelper.WithStderr(logWriter),
@@ -57,7 +68,7 @@ func StartAndDialContext(ctx context.Context, dialOptions ...grpc.DialOption) (v
 	default:
 	}
 	logWriter = log.Entry(ctx).WithField("cmd", "vpp-agent").Writer()
-	vppagentErrCh := exechelper.Start("vpp-agent -config-dir="+vppAgentConfDir,
+	vppagentErrCh := exechelper.Start("vpp-agent -config-dir="+filepath.Join(o.rootDir, vppAgentConfDir),
 		exechelper.WithContext(ctx),
 		exechelper.WithStdout(logWriter),
 		exechelper.WithStderr(logWriter),
@@ -70,7 +81,7 @@ func StartAndDialContext(ctx context.Context, dialOptions ...grpc.DialOption) (v
 	default:
 	}
 	// grpc.ClientConn for dialing the vppagent
-	vppagentCC, err := grpc.DialContext(ctx, vppEndpoint, grpc.WithInsecure())
+	vppagentCC, err := grpc.DialContext(ctx, fmt.Sprintf(vppEndpoint, o.grpcPort), grpc.WithInsecure())
 	if err != nil {
 		errCh <- err
 		close(errCh)
@@ -97,14 +108,16 @@ func StartAndDialContext(ctx context.Context, dialOptions ...grpc.DialOption) (v
 	return vppagentCC, errCh
 }
 
-func writeDefaultConfigFiles(ctx context.Context) error {
+func writeDefaultConfigFiles(ctx context.Context, o *option) error {
 	configFiles := map[string]string{
-		vppConfFilename:          vppConfContents,
-		vppAgentGrpcConfFilename: vppAgentGrpcConfContents,
-		vppAgentHTTPConfFilename: vppAgentHTTPConfContents,
-		vppAgentLogsConfFilename: vppAgentLogsConfContents,
+		vppConfFilename:           fmt.Sprintf(vppConfContents, o.rootDir),
+		vppAgentGoVPPConfFilename: fmt.Sprintf(vppAgentGoVPPConfContents, o.rootDir),
+		vppAgentGrpcConfFilename:  fmt.Sprintf(vppAgentGrpcConfContents, o.grpcPort),
+		vppAgentHTTPConfFilename:  fmt.Sprintf(vppAgentHTTPConfContents, o.httpPort),
+		vppAgentLogsConfFilename:  vppAgentLogsConfContents,
 	}
 	for filename, contents := range configFiles {
+		filename = filepath.Join(o.rootDir, filename)
 		if _, err := os.Stat(filename); os.IsNotExist(err) {
 			log.Entry(ctx).Infof("Configuration file: %q not found, using defaults", filename)
 			if err := os.MkdirAll(path.Dir(filename), 0700); err != nil {
@@ -114,6 +127,12 @@ func writeDefaultConfigFiles(ctx context.Context) error {
 				return err
 			}
 		}
+	}
+	if err := os.MkdirAll(filepath.Join(o.rootDir, "/var/run/vpp"), 0700); os.IsNotExist(err) {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Join(o.rootDir, "/var/log/vpp"), 0700); os.IsNotExist(err) {
+		return err
 	}
 	return nil
 }

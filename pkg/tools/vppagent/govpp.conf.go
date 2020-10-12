@@ -17,9 +17,12 @@
 package vppagent
 
 const (
-	vppAgentConfDir          = "/etc/nsm/vpp-agent/"
-	vppAgentGrpcConfFilename = vppAgentConfDir + "grpc.conf"
-	vppEndpoint              = "localhost:%d"
-	vppAgentGrpcConfContents = `# Documented here: https://docs.ligato.io/en/latest/user-guide/config-files/#grpc
-Endpoint: ` + vppEndpoint + "\n"
+	vppAgentGoVPPConfFilename = vppAgentConfDir + "govpp.conf"
+	vppAgentGoVPPConfContents = `# Path to a Unix-domain socket through which configuration requests are sent to VPP.
+# Used if connect-via-shm is set to false and env. variable GOVPPMUX_NOSOCK is not defined.
+# Default is "/run/vpp-api.sock".
+binapi-socket-path: %[1]s/var/run/vpp/api.sock
+
+# Socket path for reading VPP status, default is "/run/vpp/stats.sock"
+stats-socket-path: %[1]s/var/run/vpp/stats.sock`
 )

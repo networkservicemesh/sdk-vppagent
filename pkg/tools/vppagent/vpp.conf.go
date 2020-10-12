@@ -20,9 +20,9 @@ const (
 	vppConfFilename = "/etc/nsm/vpp/vpp.conf"
 	vppConfContents = `unix {
   nodaemon
-  log /var/log/vpp/vpp.log
+  log %[1]s/var/log/vpp/vpp.log
   full-coredump
-  cli-listen /run/vpp/cli.sock
+  cli-listen %[1]s/var/run/vpp/cli.sock
   gid vpp
   poll-sleep-usec 1000
 }
@@ -49,7 +49,11 @@ api-segment {
 }
 
 socksvr {
-  default
+  socket-name %[1]s/var/run/vpp/api.sock
+}
+
+statseg {
+  socket-name %[1]s/var/run/vpp/stats.sock
 }
 
 cpu {

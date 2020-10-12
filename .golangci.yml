@@ -165,3 +165,7 @@ issues:
       linters:
         - staticcheck
       text: "SA1019: afpacketInterface.GetHostIfName is deprecated: Do not use."
+    - path: pkg/tools/vppagent/start.go
+      linters:
+        - funlen
+      text: "Function 'StartAndDialContext' is too long"
