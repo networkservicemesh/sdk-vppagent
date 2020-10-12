@@ -59,7 +59,9 @@ func (s *setVppIPServer) Request(ctx context.Context, request *networkservice.Ne
 	conf := vppagent.Config(ctx)
 	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 {
 		dstIP := request.GetConnection().GetContext().GetIpContext().GetDstIpAddr()
-		conf.GetVppConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
+		if dstIP != "" {
+			conf.GetVppConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
+		}
 	}
 	return next.Server(ctx).Request(ctx, request)
 }
@@ -68,7 +70,9 @@ func (s *setVppIPServer) Close(ctx context.Context, conn *networkservice.Connect
 	conf := vppagent.Config(ctx)
 	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 {
 		dstIP := conn.GetContext().GetIpContext().GetDstIpAddr()
-		conf.GetVppConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
+		if dstIP != "" {
+			conf.GetVppConfig().GetInterfaces()[index].IpAddresses = []string{dstIP}
+		}
 	}
 	return next.Server(ctx).Close(ctx, conn)
 }

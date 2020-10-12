@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Cisco Systems, Inc.
+// Copyright (c) 2020 Cisco and/or its affiliates.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -14,23 +14,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package macaddress
+package routes
 
 import (
 	"context"
+	"net"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/networkservicemesh/api/pkg/api/networkservice"
+	"go.ligato.io/vpp-agent/v3/proto/ligato/vpp"
 
+	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
-type setMacVppServer struct{}
+type setVppRoutesServer struct{}
 
-// NewServer creates a NetworkServiceServer chain element to set the mac address on a vpp interface
-// It sets the Mac Address on the *vpp* side of an interface plugged into the
+// NewServer creates a NetworkServiceServer chain element to set the ip address on a vpp interface
+// It sets the IP Address on the *vpp* side of an interface plugged into the
 // Endpoint.
 //                                         Endpoint
 //                              +---------------------------+
@@ -41,7 +43,7 @@ type setMacVppServer struct{}
 //                              |                           |
 //                              |                           |
 //                              |                           |
-//          +-------------------+macaddress.NewServer()     |
+//          +-------------------+ ipaddress.NewServer()     |
 //                              |                           |
 //                              |                           |
 //                              |                           |
@@ -52,25 +54,35 @@ type setMacVppServer struct{}
 //                              +---------------------------+
 //
 func NewServer() networkservice.NetworkServiceServer {
-	return &setMacVppServer{}
+	return &setVppRoutesServer{}
 }
 
-func (s *setMacVppServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
-	conf := vppagent.Config(ctx)
-	conn, err := next.Server(ctx).Request(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 && conn.GetContext().GetEthernetContext().GetDstMac() != "" {
-		conf.GetVppConfig().GetInterfaces()[index].PhysAddress = conn.GetContext().GetEthernetContext().GetDstMac()
-	}
-	return conn, nil
+func (s *setVppRoutesServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
+	s.addRoutes(ctx, request.GetConnection())
+	return next.Server(ctx).Request(ctx, request)
 }
 
-func (s *setMacVppServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
-	conf := vppagent.Config(ctx)
-	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 && conn.GetContext().GetEthernetContext().GetDstMac() != "" {
-		conf.GetVppConfig().GetInterfaces()[index].PhysAddress = conn.GetContext().GetEthernetContext().GetDstMac()
-	}
+func (s *setVppRoutesServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
+	s.addRoutes(ctx, conn)
 	return next.Server(ctx).Close(ctx, conn)
+}
+
+func (s *setVppRoutesServer) addRoutes(ctx context.Context, conn *networkservice.Connection) {
+	if conn.GetContext().GetIpContext().GetSrcIpAddr() == "" {
+		return
+	}
+	srcIP, srcNet, err := net.ParseCIDR(conn.GetContext().GetIpContext().GetSrcIpAddr())
+	if err != nil {
+		return
+	}
+	conf := vppagent.Config(ctx)
+	index := len(conf.GetVppConfig().GetInterfaces()) - 1
+	if index >= 0 && srcIP.IsGlobalUnicast() {
+		iface := conf.GetVppConfig().GetInterfaces()[index]
+		vppagent.Config(ctx).GetVppConfig().Routes = append(vppagent.Config(ctx).GetVppConfig().Routes, &vpp.Route{
+			DstNetwork:        srcNet.String(),
+			OutgoingInterface: iface.GetName(),
+			VrfId:             iface.Vrf,
+		})
+	}
 }

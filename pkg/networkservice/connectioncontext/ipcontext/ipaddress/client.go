@@ -64,7 +64,7 @@ func (s *setVppIPClient) Request(ctx context.Context, request *networkservice.Ne
 		return nil, err
 	}
 	conf := vppagent.Config(ctx)
-	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 {
+	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 && conn.GetContext().GetIpContext().GetSrcIpAddr() != "" {
 		conf.GetVppConfig().GetInterfaces()[index].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
 	}
 	return conn, nil
@@ -73,7 +73,7 @@ func (s *setVppIPClient) Request(ctx context.Context, request *networkservice.Ne
 func (s *setVppIPClient) Close(ctx context.Context, conn *networkservice.Connection, opts ...grpc.CallOption) (*empty.Empty, error) {
 	e, err := next.Client(ctx).Close(ctx, conn, opts...)
 	conf := vppagent.Config(ctx)
-	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 {
+	if index := len(conf.GetVppConfig().GetInterfaces()) - 1; index >= 0 && conn.GetContext().GetIpContext().GetSrcIpAddr() != "" {
 		conf.GetVppConfig().GetInterfaces()[index].IpAddresses = []string{conn.GetContext().GetIpContext().GetSrcIpAddr()}
 	}
 	return e, err

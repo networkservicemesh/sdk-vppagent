@@ -21,6 +21,8 @@ package connectioncontext
 import (
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/chain"
 
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontext/ipcontext/routes"
+
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/connectioncontext/ethernetcontext/macaddress"
@@ -53,5 +55,6 @@ func NewServer() networkservice.NetworkServiceServer {
 	return chain.NewNetworkServiceServer(
 		ipaddress.NewServer(),
 		macaddress.NewServer(),
+		routes.NewServer(),
 	)
 }
