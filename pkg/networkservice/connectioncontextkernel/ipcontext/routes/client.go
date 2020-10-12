@@ -22,6 +22,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 	"go.ligato.io/vpp-agent/v3/proto/ligato/linux"
 	linuxl3 "go.ligato.io/vpp-agent/v3/proto/ligato/linux/l3"
@@ -77,21 +78,23 @@ func (s *setKernelRouteClient) Close(ctx context.Context, conn *networkservice.C
 }
 
 func (s *setKernelRouteClient) addRoutes(ctx context.Context, conn *networkservice.Connection) {
-	if conn.GetContext().GetIpContext().GetSrcIpAddr() == "" {
-		return
-	}
-	srcIP, srcNet, err := net.ParseCIDR(conn.GetContext().GetIpContext().GetSrcIpAddr())
-	if err != nil {
-		return
-	}
-	conf := vppagent.Config(ctx)
-	index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
-	if index >= 0 && srcIP.IsGlobalUnicast() {
-		iface := conf.GetLinuxConfig().GetInterfaces()[index]
-		vppagent.Config(ctx).GetLinuxConfig().Routes = append(vppagent.Config(ctx).GetLinuxConfig().Routes, &linux.Route{
-			DstNetwork:        srcNet.String(),
-			OutgoingInterface: iface.GetName(),
-			Scope:             linuxl3.Route_LINK,
-		})
+	if mechanism := kernel.ToMechanism(conn.GetMechanism()); mechanism != nil {
+		if conn.GetContext().GetIpContext().GetSrcIpAddr() == "" {
+			return
+		}
+		srcIP, srcNet, err := net.ParseCIDR(conn.GetContext().GetIpContext().GetSrcIpAddr())
+		if err != nil {
+			return
+		}
+		conf := vppagent.Config(ctx)
+		index := len(conf.GetLinuxConfig().GetInterfaces()) - 1
+		if index >= 0 && srcIP.IsGlobalUnicast() {
+			iface := conf.GetLinuxConfig().GetInterfaces()[index]
+			vppagent.Config(ctx).GetLinuxConfig().Routes = append(vppagent.Config(ctx).GetLinuxConfig().Routes, &linux.Route{
+				DstNetwork:        srcNet.String(),
+				OutgoingInterface: iface.GetName(),
+				Scope:             linuxl3.Route_LINK,
+			})
+		}
 	}
 }
