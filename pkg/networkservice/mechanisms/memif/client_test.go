@@ -18,7 +18,7 @@ package memif_test
 
 import (
 	"io/ioutil"
-	"path"
+	"net/url"
 	"testing"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
@@ -41,13 +41,13 @@ func TestMemifClient(t *testing.T) {
 				Cls:  cls.LOCAL,
 				Type: memif.MECHANISM,
 				Parameters: map[string]string{
-					memif.SocketFilename: SocketFilename,
+					memif.SocketFileURL: (&url.URL{Scheme: "file", Path: SocketFilename}).String(),
 				},
 			},
 		},
 	}
 	suite.Run(t, checkvppagentmechanism.NewClientSuite(
-		memif_mechanism.NewClient(BaseDir),
+		memif_mechanism.NewClient(),
 		memif.MECHANISM,
 		func(t *testing.T, mechanism *networkservice.Mechanism) {},
 		func(t *testing.T, conf *configurator.Config) {
@@ -57,7 +57,7 @@ func TestMemifClient(t *testing.T) {
 			assert.NotNil(t, iface)
 			ifaceMemif := conf.GetVppConfig().GetInterfaces()[numInterfaces-1].GetMemif()
 			assert.NotNil(t, iface)
-			assert.Equal(t, path.Join(BaseDir, SocketFilename), ifaceMemif.GetSocketFilename())
+			assert.Equal(t, SocketFilename, ifaceMemif.GetSocketFilename())
 		},
 		testRequest,
 		testRequest.GetConnection(),

@@ -19,6 +19,7 @@ package macaddress_test
 import (
 	"context"
 	"io/ioutil"
+	"net/url"
 	"testing"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
@@ -51,7 +52,7 @@ func clientRequest() *networkservice.NetworkServiceRequest {
 				Cls:  cls.LOCAL,
 				Type: memif_mechanisms.MECHANISM,
 				Parameters: map[string]string{
-					memif_mechanisms.SocketFilename: SocketFilename,
+					memif_mechanisms.SocketFileURL: (&url.URL{Scheme: "file", Path: SocketFilename}).String(),
 				},
 			},
 			Context: &networkservice.ConnectionContext{
@@ -78,7 +79,7 @@ func TestSetMacVppClient(t *testing.T) {
 			expectedConf := vppagent.Config(vppagent.WithConfig(context.Background()))
 			assert.Equal(t, expectedConf, conf)
 		}),
-		memif.NewClient(BaseDir),
+		memif.NewClient(),
 	)
 	conn, err := client.Request(vppagent.WithConfig(context.Background()), clientRequest())
 	assert.NotNil(t, conn)

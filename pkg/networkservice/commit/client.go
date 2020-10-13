@@ -34,13 +34,13 @@ import (
 )
 
 type commitClient struct {
-	vppagentCC     *grpc.ClientConn
+	vppagentCC     grpc.ClientConnInterface
 	vppagentClient configurator.ConfiguratorServiceClient
 }
 
 // NewClient creates a NetworkServiceClient chain elements for committing the vppagent *configurator.Config
 // retrieved using vppagent.Config(ctx) to the actual vppagent instance.
-func NewClient(vppagentCC *grpc.ClientConn) networkservice.NetworkServiceClient {
+func NewClient(vppagentCC grpc.ClientConnInterface) networkservice.NetworkServiceClient {
 	return &commitClient{
 		vppagentCC:     vppagentCC,
 		vppagentClient: configurator.NewConfiguratorServiceClient(vppagentCC),

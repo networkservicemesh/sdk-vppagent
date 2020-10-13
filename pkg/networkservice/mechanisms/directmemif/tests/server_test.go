@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !windows
+
 package tests
 
 import (
@@ -64,7 +66,7 @@ func TestServerBasic(t *testing.T) {
 		connect.NewServer(
 			context.Background(),
 			func(ctx context.Context, cc grpc.ClientConnInterface) networkservice.NetworkServiceClient {
-				return memif.NewClient(dir)
+				return memif.NewClient()
 			},
 			grpc.WithInsecure(),
 		),
@@ -91,7 +93,7 @@ func TestServerReRequest(t *testing.T) {
 		connect.NewServer(
 			context.Background(),
 			func(ctx context.Context, cc grpc.ClientConnInterface) networkservice.NetworkServiceClient {
-				return memif.NewClient(dir)
+				return memif.NewClient()
 			},
 			grpc.WithInsecure(),
 		),

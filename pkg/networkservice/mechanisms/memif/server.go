@@ -19,13 +19,15 @@ package memif
 import (
 	"context"
 	"fmt"
-	"path"
+	"net/url"
+	"path/filepath"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/networkservicemesh/api/pkg/api/networkservice"
-	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
 	"go.ligato.io/vpp-agent/v3/proto/ligato/vpp"
 	vppinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/interfaces"
+
+	"github.com/networkservicemesh/api/pkg/api/networkservice"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
 
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 
@@ -54,6 +56,8 @@ func (m *memifServer) Close(ctx context.Context, conn *networkservice.Connection
 func (m *memifServer) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) {
 	if mechanism := memif.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		conf := vppagent.Config(ctx)
+		socketFile := filepath.Join(m.baseDir, fmt.Sprintf("%s.memif.socket", conn.GetId()))
+		mechanism.SetSocketFileURL((&url.URL{Scheme: "file", Path: socketFile}).String())
 		conf.GetVppConfig().Interfaces = append(conf.GetVppConfig().Interfaces, &vpp.Interface{
 			Name:    fmt.Sprintf("server-%s", conn.GetId()),
 			Type:    vppinterfaces.Interface_MEMIF,
@@ -61,7 +65,7 @@ func (m *memifServer) appendInterfaceConfig(ctx context.Context, conn *networkse
 			Link: &vppinterfaces.Interface_Memif{
 				Memif: &vppinterfaces.MemifLink{
 					Master:         true,
-					SocketFilename: path.Join(m.baseDir, mechanism.GetSocketFilename()),
+					SocketFilename: socketFile,
 				},
 			},
 		})

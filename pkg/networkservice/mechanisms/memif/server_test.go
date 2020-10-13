@@ -17,8 +17,10 @@
 package memif_test
 
 import (
+	"fmt"
 	"io/ioutil"
-	"path"
+	"net/url"
+	"path/filepath"
 	"testing"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
@@ -35,20 +37,19 @@ import (
 )
 
 const (
-	SocketFilename = "foo"
+	SocketFilename = "/foo"
 	BaseDir        = "baseDir"
+	ID             = "testId"
 )
 
 func TestMemifServer(t *testing.T) {
 	logrus.SetOutput(ioutil.Discard)
 	testRequest := &networkservice.NetworkServiceRequest{
 		Connection: &networkservice.Connection{
+			Id: ID,
 			Mechanism: &networkservice.Mechanism{
 				Cls:  cls.LOCAL,
 				Type: memif.MECHANISM,
-				Parameters: map[string]string{
-					memif.SocketFilename: SocketFilename,
-				},
 			},
 		},
 	}
@@ -59,7 +60,7 @@ func TestMemifServer(t *testing.T) {
 			func(t *testing.T, mechanism *networkservice.Mechanism) {
 				m := memif.ToMechanism(mechanism)
 				assert.NotNil(t, m)
-				assert.Equal(t, SocketFilename, m.GetSocketFilename())
+				assert.Equal(t, (&url.URL{Scheme: "file", Path: filepath.Join(BaseDir, fmt.Sprintf("%s.memif.socket", ID))}).String(), m.GetSocketFileURL())
 			},
 			func(t *testing.T, conf *configurator.Config) {
 				numInterfaces := len(conf.GetVppConfig().GetInterfaces())
@@ -68,7 +69,7 @@ func TestMemifServer(t *testing.T) {
 				assert.NotNil(t, iface)
 				ifaceMemif := conf.GetVppConfig().GetInterfaces()[numInterfaces-1].GetMemif()
 				assert.NotNil(t, iface)
-				assert.Equal(t, path.Join(BaseDir, SocketFilename), ifaceMemif.GetSocketFilename())
+				assert.Equal(t, filepath.Join(BaseDir, fmt.Sprintf("%s.memif.socket", ID)), ifaceMemif.GetSocketFilename())
 			},
 			testRequest,
 			testRequest.GetConnection(),

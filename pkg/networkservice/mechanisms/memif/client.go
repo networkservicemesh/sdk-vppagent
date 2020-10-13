@@ -20,9 +20,10 @@ package memif
 import (
 	"context"
 	"fmt"
-	"path"
+	"net/url"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/pkg/errors"
 	"go.ligato.io/vpp-agent/v3/proto/ligato/vpp"
 	vppinterfaces "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/interfaces"
 	"google.golang.org/grpc"
@@ -41,13 +42,11 @@ const (
 	MECHANISM = memif.MECHANISM
 )
 
-type memifClient struct {
-	baseDir string
-}
+type memifClient struct{}
 
 // NewClient provides a NetworkServiceClient chain elements that support the memif Mechanism
-func NewClient(baseDir string) networkservice.NetworkServiceClient {
-	return &memifClient{baseDir: baseDir}
+func NewClient() networkservice.NetworkServiceClient {
+	return &memifClient{}
 }
 
 func (m *memifClient) Request(ctx context.Context, request *networkservice.NetworkServiceRequest, opts ...grpc.CallOption) (*networkservice.Connection, error) {
@@ -61,7 +60,9 @@ func (m *memifClient) Request(ctx context.Context, request *networkservice.Netwo
 	if err != nil {
 		return nil, err
 	}
-	m.appendInterfaceConfig(ctx, conn)
+	if err := m.appendInterfaceConfig(ctx, conn); err != nil {
+		return nil, err
+	}
 	return conn, nil
 }
 
@@ -70,13 +71,22 @@ func (m *memifClient) Close(ctx context.Context, conn *networkservice.Connection
 	if err != nil {
 		return nil, err
 	}
-	m.appendInterfaceConfig(ctx, conn)
-	return rv, err
+	if err := m.appendInterfaceConfig(ctx, conn); err != nil {
+		return nil, err
+	}
+	return rv, nil
 }
 
-func (m *memifClient) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) {
+func (m *memifClient) appendInterfaceConfig(ctx context.Context, conn *networkservice.Connection) error {
 	if mechanism := memif.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		conf := vppagent.Config(ctx)
+		socketFileURL, err := url.Parse(mechanism.GetSocketFileURL())
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		if socketFileURL.Scheme != "file" {
+			return errors.Errorf("url scheme must be 'file' actual: %q", socketFileURL)
+		}
 		conf.GetVppConfig().Interfaces = append(conf.GetVppConfig().Interfaces, &vpp.Interface{
 			Name:    fmt.Sprintf("client-%s", conn.GetId()),
 			Type:    vppinterfaces.Interface_MEMIF,
@@ -84,9 +94,10 @@ func (m *memifClient) appendInterfaceConfig(ctx context.Context, conn *networkse
 			Link: &vppinterfaces.Interface_Memif{
 				Memif: &vppinterfaces.MemifLink{
 					Master:         false,
-					SocketFilename: path.Join(m.baseDir, mechanism.GetSocketFilename()),
+					SocketFilename: socketFileURL.Path,
 				},
 			},
 		})
 	}
+	return nil
 }

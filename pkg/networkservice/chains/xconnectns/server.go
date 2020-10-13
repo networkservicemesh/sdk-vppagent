@@ -24,6 +24,7 @@ import (
 	"net"
 	"net/url"
 
+	"github.com/networkservicemesh/sdk/pkg/networkservice/common/mechanisms/sendfd"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/adapters"
 	"github.com/networkservicemesh/sdk/pkg/tools/addressof"
 
@@ -98,7 +99,7 @@ func NewServer(ctx context.Context, name string, authzServer networkservice.Netw
 				l2xconnect.NewClient(),
 				connectioncontextkernel.NewClient(),
 				// Preference ordered list of mechanisms we support for outgoing connections
-				memif.NewClient(baseDir),
+				memif.NewClient(),
 				kernel.NewClient(),
 				vxlan.NewClient(tunnelIP, vxlanInitFunc),
 				srv6.NewClient(),
@@ -109,6 +110,7 @@ func NewServer(ctx context.Context, name string, authzServer networkservice.Netw
 		directmemif.NewServer(),
 		metrics.NewServer(configurator.NewStatsPollerServiceClient(vppagentCC)),
 		commit.NewServer(vppagentCC),
+		sendfd.NewServer(),
 	)
 	return rv
 }
