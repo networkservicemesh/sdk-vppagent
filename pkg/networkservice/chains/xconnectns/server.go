@@ -28,8 +28,6 @@ import (
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/adapters"
 	"github.com/networkservicemesh/sdk/pkg/tools/addressof"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/directmemif"
-
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/common/mechanisms/recvfd"
 	"github.com/networkservicemesh/sdk/pkg/tools/token"
@@ -49,6 +47,7 @@ import (
 	"github.com/networkservicemesh/sdk/pkg/networkservice/common/connect"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/commit"
+	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/directmemif"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/kernel"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/memif"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/srv6"
@@ -94,9 +93,6 @@ func NewServer(ctx context.Context, name string, authzServer networkservice.Netw
 				// What to call onHeal
 				addressof.NetworkServiceClient(adapters.NewServerToClient(rv)),
 				tokenGenerator,
-				// l2 cross connect (xconnect) between incoming and outgoing connections
-				// TODO - properly support l3xconnect for IP payload
-				l2xconnect.NewClient(),
 				connectioncontextkernel.NewClient(),
 				// Preference ordered list of mechanisms we support for outgoing connections
 				memif.NewClient(),
@@ -106,8 +102,11 @@ func NewServer(ctx context.Context, name string, authzServer networkservice.Netw
 				recvfd.NewClient()),
 			clientDialOptions...,
 		),
-		connectioncontextkernel.NewServer(),
 		directmemif.NewServer(),
+		connectioncontextkernel.NewServer(),
+		// TODO - properly support l3xconnect for IP payload
+		// l2 cross connect (xconnect) between incoming and outgoing connections
+		l2xconnect.NewServer(),
 		metrics.NewServer(configurator.NewStatsPollerServiceClient(vppagentCC)),
 		commit.NewServer(vppagentCC),
 		sendfd.NewServer(),

@@ -102,7 +102,6 @@ func (s *setVppRoutesClient) addRoutes(ctx context.Context, conn *networkservice
 			vppagent.Config(ctx).GetVppConfig().Routes = append(vppagent.Config(ctx).GetVppConfig().Routes, &vpp.Route{
 				DstNetwork:        route.Prefix,
 				OutgoingInterface: iface.GetName(),
-				NextHopAddr:       dstIP.String(),
 			})
 		}
 	}

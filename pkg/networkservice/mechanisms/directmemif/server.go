@@ -14,33 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build !windows
-
 // Package directmemif provides server chain element that create connection between two memif interfaces
 package directmemif
 
 import (
 	"context"
-
-	interfaces "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/interfaces"
+	"net/url"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"go.ligato.io/vpp-agent/v3/proto/ligato/vpp"
-	l2 "go.ligato.io/vpp-agent/v3/proto/ligato/vpp/l2"
-
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
-	"github.com/networkservicemesh/sdk/pkg/tools/serialize"
 
-	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/mechanisms/directmemif/proxy"
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
 
-type directMemifServer struct {
-	net      string
-	executor serialize.Executor
-	proxies  map[string]proxy.Proxy
-}
+type directMemifServer struct{}
 
 // NewServer creates new direct memif server
 func NewServer() networkservice.NetworkServiceServer {
@@ -49,96 +38,42 @@ func NewServer() networkservice.NetworkServiceServer {
 
 // NewServerWithNetwork creates new direct memif server with specific network
 func NewServerWithNetwork(net string) networkservice.NetworkServiceServer {
-	return &directMemifServer{
-		executor: serialize.NewExecutor(),
-		proxies:  map[string]proxy.Proxy{},
-		net:      net,
-	}
+	return &directMemifServer{}
 }
 
 func (d *directMemifServer) Request(ctx context.Context, request *networkservice.NetworkServiceRequest) (*networkservice.Connection, error) {
-	vc := vppagent.Config(ctx).GetVppConfig()
-	l := len(vc.GetInterfaces())
-	if l < 2 {
-		return next.Server(ctx).Request(ctx, request)
-	}
-	client := vc.GetInterfaces()[l-2]
-	endpoint := vc.GetInterfaces()[l-1]
-	if client.GetMemif() == nil || endpoint.GetMemif() == nil {
-		return next.Server(ctx).Request(ctx, request)
-	}
-	vc.Interfaces = vc.GetInterfaces()[:l-2]
-
-	connectionID := request.GetConnection().GetId()
-	p, err := proxy.New(client.GetMemif().GetSocketFilename(), endpoint.GetMemif().GetSocketFilename(), d.net,
-		proxy.StopListenerAdapter(func() {
-			d.executor.AsyncExec(func() {
-				delete(d.proxies, connectionID)
-			})
-		}))
-	if err != nil {
-		return nil, err
-	}
-
-	d.executor.AsyncExec(func() {
-		prev := d.proxies[connectionID]
-		if prev != nil {
-			_ = prev.Stop()
-			d.executor.AsyncExec(func() {
-				d.proxies[connectionID] = p
-			})
-		} else {
-			d.proxies[connectionID] = p
+	if mechanism := memif.ToMechanism(request.GetConnection().GetMechanism()); mechanism != nil {
+		vc := vppagent.Config(ctx).GetVppConfig()
+		l := len(vc.GetInterfaces())
+		if l < 2 {
+			return next.Server(ctx).Request(ctx, request)
 		}
-	})
-	err = p.Start()
-	if err != nil {
-		return nil, err
+		client := vc.GetInterfaces()[l-2]
+		endpoint := vc.GetInterfaces()[l-1]
+		if client.GetMemif() == nil || endpoint.GetMemif() == nil {
+			return next.Server(ctx).Request(ctx, request)
+		}
+		vc.Interfaces = vc.GetInterfaces()[:l-2]
+		mechanism.SetSocketFileURL((&url.URL{Scheme: "file", Path: endpoint.GetMemif().GetSocketFilename()}).String())
 	}
-	d.removeXConnect(vc, client, endpoint)
 
-	con, err := next.Server(ctx).Request(ctx, request)
-	if err == nil {
-		<-d.executor.AsyncExec(func() {
-			path := request.GetConnection().GetPath()
-			path.GetPathSegments()[path.GetIndex()].Metrics = d.proxies[connectionID].Metrics()
-		})
-	}
-	return con, err
+	return next.Server(ctx).Request(ctx, request)
 }
 
 func (d *directMemifServer) Close(ctx context.Context, conn *networkservice.Connection) (*empty.Empty, error) {
-	c := vppagent.Config(ctx)
-	l := len(c.GetVppConfig().GetInterfaces())
-	if l < 2 {
-		return next.Server(ctx).Close(ctx, conn)
-	}
-	client := c.GetVppConfig().GetInterfaces()[l-2]
-	endpoint := c.GetVppConfig().GetInterfaces()[l-1]
-	if client.GetMemif() == nil || endpoint.GetMemif() == nil {
-		return next.Server(ctx).Close(ctx, conn)
-	}
-	d.executor.AsyncExec(func() {
-		p := d.proxies[conn.Id]
-		if p != nil {
-			_ = d.proxies[conn.Id].Stop()
-			delete(d.proxies, conn.Id)
+	if mechanism := memif.ToMechanism(conn.GetMechanism()); mechanism != nil {
+		vc := vppagent.Config(ctx).GetVppConfig()
+		l := len(vc.GetInterfaces())
+		if l < 2 {
+			return next.Server(ctx).Close(ctx, conn)
 		}
-	})
+		client := vc.GetInterfaces()[l-2]
+		endpoint := vc.GetInterfaces()[l-1]
+		if client.GetMemif() == nil || endpoint.GetMemif() == nil {
+			return next.Server(ctx).Close(ctx, conn)
+		}
+		vc.Interfaces = vc.GetInterfaces()[:l-2]
+		mechanism.SetSocketFileURL((&url.URL{Scheme: "file", Path: endpoint.GetMemif().GetSocketFilename()}).String())
+	}
 	return next.Server(ctx).Close(ctx, conn)
-}
-
-func (d *directMemifServer) removeXConnect(config *vpp.ConfigData, client, endpoint *interfaces.Interface) {
-	connectPairs := config.GetXconnectPairs()
-	newConnectPairs := make([]*l2.XConnectPair, 0, len(connectPairs)-2)
-
-	for _, pair := range connectPairs {
-		if pair.GetReceiveInterface() == client.GetName() && pair.GetTransmitInterface() == endpoint.GetName() ||
-			pair.GetReceiveInterface() == endpoint.GetName() && pair.GetTransmitInterface() == client.GetName() {
-			continue
-		}
-		newConnectPairs = append(newConnectPairs, pair)
-	}
-
-	config.XconnectPairs = newConnectPairs
 }

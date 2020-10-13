@@ -22,6 +22,7 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
 	"github.com/pkg/errors"
 	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
 	"google.golang.org/grpc"
@@ -53,10 +54,25 @@ func (c *commitClient) Request(ctx context.Context, request *networkservice.Netw
 	if err != nil {
 		return nil, err
 	}
-	_, err = c.vppagentClient.Update(ctx, &configurator.UpdateRequest{Update: conf})
-	if err != nil {
-		return nil, errors.Wrapf(err, "error sending config to vppagent %s: ", conf)
+	// TODO - remove this horrible hack once vppagent has been fixed with WaitDone
+	// Basically... memif is failing intermittently as a client *because* vppagent
+	// returns before we have a proper listener on the memif socket.  This causes us to
+	// fail.
+	for {
+		_, err = c.vppagentClient.Update(ctx, &configurator.UpdateRequest{Update: conf})
+		if err != nil && rv.GetMechanism().GetType() == memif.MECHANISM {
+			select {
+			case <-ctx.Done():
+			default:
+				continue
+			}
+		}
+		if err != nil {
+			return nil, errors.Wrapf(err, "error sending config to vppagent %s: ", conf)
+		}
+		break
 	}
+
 	return rv, nil
 }
 
