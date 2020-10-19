@@ -18,11 +18,9 @@ package memif_test
 
 import (
 	"io/ioutil"
-	"net/url"
 	"testing"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
-	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
 	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -37,13 +35,7 @@ func TestMemifClient(t *testing.T) {
 	logrus.SetOutput(ioutil.Discard)
 	testRequest := &networkservice.NetworkServiceRequest{
 		Connection: &networkservice.Connection{
-			Mechanism: &networkservice.Mechanism{
-				Cls:  cls.LOCAL,
-				Type: memif.MECHANISM,
-				Parameters: map[string]string{
-					memif.SocketFileURL: (&url.URL{Scheme: "file", Path: SocketFilename}).String(),
-				},
-			},
+			Mechanism: memif.New(SocketFilename),
 		},
 	}
 	suite.Run(t, checkvppagentmechanism.NewClientSuite(

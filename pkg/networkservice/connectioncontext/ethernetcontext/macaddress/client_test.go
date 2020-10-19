@@ -19,11 +19,9 @@ package macaddress_test
 import (
 	"context"
 	"io/ioutil"
-	"net/url"
 	"testing"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
-	"github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/cls"
 	memif_mechanisms "github.com/networkservicemesh/api/pkg/api/networkservice/mechanisms/memif"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/chain"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/utils/checks/checkcontext"
@@ -48,13 +46,7 @@ const (
 func clientRequest() *networkservice.NetworkServiceRequest {
 	return &networkservice.NetworkServiceRequest{
 		Connection: &networkservice.Connection{
-			Mechanism: &networkservice.Mechanism{
-				Cls:  cls.LOCAL,
-				Type: memif_mechanisms.MECHANISM,
-				Parameters: map[string]string{
-					memif_mechanisms.SocketFileURL: (&url.URL{Scheme: "file", Path: SocketFilename}).String(),
-				},
-			},
+			Mechanism: memif_mechanisms.New(SocketFilename),
 			Context: &networkservice.ConnectionContext{
 				EthernetContext: &networkservice.EthernetContext{
 					SrcMac: MacAddress,

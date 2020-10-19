@@ -57,7 +57,7 @@ func (m *memifServer) appendInterfaceConfig(ctx context.Context, conn *networkse
 	if mechanism := memif.ToMechanism(conn.GetMechanism()); mechanism != nil {
 		conf := vppagent.Config(ctx)
 		socketFile := filepath.Join(m.baseDir, fmt.Sprintf("%s.memif.socket", conn.GetId()))
-		mechanism.SetSocketFileURL((&url.URL{Scheme: "file", Path: socketFile}).String())
+		mechanism.SetSocketFileURL((&url.URL{Scheme: memif.SocketFileScheme, Path: socketFile}).String())
 		conf.GetVppConfig().Interfaces = append(conf.GetVppConfig().Interfaces, &vpp.Interface{
 			Name:    fmt.Sprintf("server-%s", conn.GetId()),
 			Type:    vppinterfaces.Interface_MEMIF,
