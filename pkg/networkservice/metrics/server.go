@@ -22,6 +22,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/edwarnicke/serialize"
+
 	"github.com/networkservicemesh/sdk/pkg/tools/log"
 
 	"go.ligato.io/vpp-agent/v3/proto/ligato/configurator"
@@ -32,7 +34,6 @@ import (
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/next"
 	"github.com/networkservicemesh/sdk/pkg/networkservice/core/trace"
-	"github.com/networkservicemesh/sdk/pkg/tools/serialize"
 
 	"github.com/networkservicemesh/sdk-vppagent/pkg/networkservice/vppagent"
 )
