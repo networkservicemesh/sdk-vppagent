@@ -7,9 +7,9 @@ require (
 	github.com/edwarnicke/serialize v1.0.0
 	github.com/golang/protobuf v1.4.3
 	github.com/networkservicemesh/api v0.0.0-20201026112722-9b20186587a5
-	github.com/networkservicemesh/sdk v0.0.0-20201028160615-a9950861756c
+	github.com/networkservicemesh/sdk v0.0.0-20201030000210-74cd5de11f63
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.6.0
+	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
 	go.ligato.io/vpp-agent/v3 v3.1.0
 	golang.org/x/net v0.0.0-20201010224723-4f7140c49acb // indirect
