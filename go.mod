@@ -7,7 +7,7 @@ require (
 	github.com/edwarnicke/serialize v1.0.0
 	github.com/golang/protobuf v1.4.3
 	github.com/networkservicemesh/api v0.0.0-20201117093615-ae6039374f31
-	github.com/networkservicemesh/sdk v0.0.0-20201125022524-de6798d3aa74
+	github.com/networkservicemesh/sdk v0.0.0-20201125032206-146cfff3a9ec
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
